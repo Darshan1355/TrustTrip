@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "TrustTrip",
+    "slug": "TrustTrip",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "expo": {
+          "plugins": [
+            [
+              "expo-location",
+              {
+                "locationAlwaysAndWhenInUsePermission": "Allow TrustTrip to access your location."
+              }
+            ]
+          ]
+        },
+    "scheme": "trusttrip",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static"
+      
+    },
+
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
