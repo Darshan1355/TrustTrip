@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const categories = [
   "Overpricing",
@@ -38,27 +39,54 @@ export default function ComplaintScreen() {
     setLocation(loc.coords);
   };
 
-  const handleSubmit = () => {
-    if (!selectedCategory) {
-      Alert.alert("Please select a complaint category.");
+  const handleSubmit = async () => {
+  if (!selectedCategory) {
+    Alert.alert("Please select a complaint category.");
+    return;
+  }
+
+  try {
+    // GET LOGGED IN USER
+    const user = await AsyncStorage.getItem("user");
+
+    if (!user) {
+      Alert.alert("Error", "User not logged in");
       return;
     }
 
-    Alert.alert(
-      "Complaint Submitted",
-      `Category: ${selectedCategory}
-Description: ${complaint || "No additional details"}
-Location: ${
-        location
-          ? `${location.latitude.toFixed(3)}, ${location.longitude.toFixed(3)}`
-          : "Not Shared"
-      }`
-    );
+    const parsedUser = JSON.parse(user);
+    const username = parsedUser.username;
 
-    // Reset
-    setComplaint("");
-    setSelectedCategory("");
-  };
+    const response = await fetch("http://10.17.96.190:5000/complaint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,   // ✅ dynamic username
+        category: selectedCategory,
+        description: complaint,
+        latitude: location?.latitude || null,
+        longitude: location?.longitude || null,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      Alert.alert("Success", data.message);
+
+      setComplaint("");
+      setSelectedCategory("");
+      setLocation(null);
+    } else {
+      Alert.alert("Error", data.message);
+    }
+
+  } catch (error) {
+    Alert.alert("Error", "Could not submit complaint");
+  }
+};
 
   const getSuggestion = () => {
     if (selectedCategory === "Overpricing")

@@ -22,6 +22,7 @@ import EquipmentScreen from "../screens/Equipment/EquipmentScreen";
 import WomenSafetyDetailScreen from "../screens/women/WomenSafetyDetailScreen";
 import SOSDetailScreen from "../screens/SOS/SOSDetailScreen";
 import ChatBotScreen from "../screens/ChatBotScreen";
+import MyComplaintsScreen from "../screens/MyComplaintsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -73,7 +74,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Profile">
               {(props) => <ProfileScreen {...props} logoutUser={logoutUser} />}
             </Stack.Screen>
-
+            <Stack.Screen name="MyComplaints" component={MyComplaintsScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
             <Stack.Screen name="WomenSafetyDetail" component={WomenSafetyDetailScreen} />

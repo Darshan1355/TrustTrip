@@ -11,7 +11,7 @@ ScrollView,
 Alert,
 } from "react-native";
 
-export default function ProfileScreen({ logoutUser }: any) {
+export default function ProfileScreen({ logoutUser, navigation }: any) {
 
 const [isEditing, setIsEditing] = useState(false)
 
@@ -211,10 +211,13 @@ keyboardType="numeric"
 </View>
 
 
-<View style={styles.card}>
+<TouchableOpacity
+style={styles.card}
+onPress={() => navigation.navigate("MyComplaints")}
+>
 <Text style={styles.sectionTitle}>Complaints</Text>
-<Text style={styles.statText}>Total Complaints Raised: 2</Text>
-</View>
+<Text style={styles.statText}>View My Complaints</Text>
+</TouchableOpacity>
 
 
 

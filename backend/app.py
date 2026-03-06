@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from database import get_db_connection
 from flask_cors import CORS
 
+
 app = Flask(__name__)
 CORS(app)
 
@@ -102,6 +103,56 @@ def update_user_profile(username):
     conn.close()
 
     return {"message": "Profile updated successfully"}
+
+from flask import Flask, request, jsonify
+from database import get_db_connection
+
+@app.route('/complaint', methods=['POST'])
+def add_complaint():
+    data = request.json
+
+    username = data.get("username")
+    category = data.get("category")
+    description = data.get("description")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+        INSERT INTO complaints (username, category, description, latitude, longitude)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+
+    cursor.execute(query, (username, category, description, latitude, longitude))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Complaint stored successfully"})
+
+@app.route("/user-complaints/<username>", methods=["GET"])
+def get_user_complaints(username):
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT id, category, description, latitude, longitude, created_at
+        FROM complaints
+        WHERE username = %s
+        ORDER BY created_at DESC
+    """
+
+    cursor.execute(query, (username,))
+    complaints = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(complaints)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True)
