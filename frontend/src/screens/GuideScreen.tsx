@@ -1,196 +1,221 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  TextInput,
-  TouchableOpacity,
+View,
+Text,
+FlatList,
+TouchableOpacity,
+Image,
+Alert,
+StyleSheet
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 
-const guides = [
-  {
-    id: "1",
-    name: "Ravi Kumar",
-    age: 32,
-    contact: "9876543210",
-    price: 1200,
-    rating: 4.8,
-    languages: "English, Hindi",
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
-    country: "India",
-    state: "Maharashtra",
-    district: "Kolhapur",
-    taluka: "Karveer",
-    city: "Kolhapur",
-  },
-  {
-    id: "2",
-    name: "Meena Patil",
-    age: 28,
-    contact: "9123456780",
-    price: 1500,
-    rating: 4.6,
-    languages: "Marathi, English",
-    image: "https://randomuser.me/api/portraits/women/44.jpg",
-    country: "India",
-    state: "Maharashtra",
-    district: "Satara",
-    taluka: "Karad",
-    city: "Nandgaon",
-  },
-];
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import StarRating from "react-native-star-rating-widget";
 
-export default function GuideScreen() {
-  const [search, setSearch] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [district, setDistrict] = useState("");
-  const [taluka, setTaluka] = useState("");
-  const [city, setCity] = useState("");
+const API_URL = "http://10.17.96.190:5000";
 
-  const filteredGuides = guides.filter((guide) => {
-    return (
-      guide.name.toLowerCase().includes(search.toLowerCase()) &&
-      (country ? guide.country === country : true) &&
-      (state ? guide.state === state : true) &&
-      (district ? guide.district === district : true) &&
-      (taluka ? guide.taluka === taluka : true) &&
-      (city ? guide.city === city : true)
-    );
-  });
+type Guide = {
+g_id: number
+name: string
+languages: string
+status: string
+profile_photo: string
+rating: number
+}
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Local Guide Booking</Text>
+export default function GuideScreen(){
 
-      {/* ✅ Improved Search Bar */}
-      <TextInput
-        placeholder="Search guide..."
-        value={search}
-        onChangeText={setSearch}
-        style={styles.searchBar}
-      />
+const [guides,setGuides] = useState<Guide[]>([])
+const [selectedGuide,setSelectedGuide] = useState<number | null>(null)
+const [rating,setRating] = useState(0)
 
-      {/* Filters */}
-      <View style={styles.dropdown}>
-        <Picker selectedValue={country} onValueChange={setCountry}>
-          <Picker.Item label="Select Country" value="" />
-          <Picker.Item label="India" value="India" />
-        </Picker>
-      </View>
+useEffect(()=>{
+fetchGuides()
+},[])
 
-      <View style={styles.dropdown}>
-        <Picker selectedValue={state} onValueChange={setState}>
-          <Picker.Item label="Select State" value="" />
-          <Picker.Item label="Maharashtra" value="Maharashtra" />
-        </Picker>
-      </View>
+const fetchGuides = async ()=>{
 
-      <View style={styles.dropdown}>
-        <Picker selectedValue={district} onValueChange={setDistrict}>
-          <Picker.Item label="Select District" value="" />
-          <Picker.Item label="Kolhapur" value="Kolhapur" />
-          <Picker.Item label="Satara" value="Satara" />
-        </Picker>
-      </View>
+try{
 
-      <View style={styles.dropdown}>
-        <Picker selectedValue={taluka} onValueChange={setTaluka}>
-          <Picker.Item label="Select Taluka" value="" />
-          <Picker.Item label="Karveer" value="Karveer" />
-          <Picker.Item label="Karad" value="Karad" />
-        </Picker>
-      </View>
+const res = await fetch(`${API_URL}/guides`)
+const data = await res.json()
 
-      <View style={styles.dropdown}>
-        <Picker selectedValue={city} onValueChange={setCity}>
-          <Picker.Item label="Select City" value="" />
-          <Picker.Item label="Kolhapur" value="Kolhapur" />
-          <Picker.Item label="Nandgaon" value="Nandgaon" />
-        </Picker>
-      </View>
+setGuides(data)
 
-      {/* Guide Cards */}
-      <FlatList
-        data={filteredGuides}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
-            <Image source={{ uri: item.image }} style={styles.image} />
+}catch(error){
+console.log(error)
+}
 
-            <View style={styles.info}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text>Age: {item.age}</Text>
-              <Text>ID: {item.id}</Text>
-              <Text>Contact: {item.contact}</Text>
-              <Text>Price: ₹{item.price}/day</Text>
-              <Text>Rating: ⭐ {item.rating}</Text>
-              <Text>Languages: {item.languages}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
+}
+
+const selectGuide = async (guideId:number)=>{
+
+const userData = await AsyncStorage.getItem("user")
+
+if(!userData){
+Alert.alert("Error","User not logged in")
+return
+}
+
+const user = JSON.parse(userData)
+const username = user.username
+
+setSelectedGuide(guideId)
+
+await fetch(`${API_URL}/select-guide`,{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+guide_id:guideId,
+username:username
+})
+})
+
+Alert.alert("Guide Selected")
+
+}
+
+const submitRating = async (guideId:number)=>{
+
+const userData = await AsyncStorage.getItem("user")
+
+if(!userData){
+Alert.alert("Error","User not logged in")
+return
+}
+
+const user = JSON.parse(userData)
+const username = user.username
+
+await fetch(`${API_URL}/rate-guide`,{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+guide_id:guideId,
+username:username,
+rating:rating
+})
+})
+
+Alert.alert("Rating submitted ⭐")
+
+setRating(0)
+
+fetchGuides()
+
+}
+
+const renderGuide = ({item}:{item:Guide})=>(
+
+<View style={styles.card}>
+
+<Image
+source={{uri:`${API_URL}/static/guides/${item.profile_photo}`}}
+style={styles.image}
+/>
+
+<Text style={styles.name}>{item.name}</Text>
+<Text>Languages: {item.languages}</Text>
+<Text>Status: {item.status}</Text>
+
+<Text style={styles.rating}>
+Average Rating ⭐ {item.rating?.toFixed(1)}
+</Text>
+
+<TouchableOpacity
+style={styles.selectBtn}
+onPress={()=>selectGuide(item.g_id)}
+>
+<Text style={styles.btnText}>Select Guide</Text>
+</TouchableOpacity>
+
+
+{selectedGuide === item.g_id && (
+
+<View style={{marginTop:10}}>
+
+<StarRating
+rating={rating}
+onChange={setRating}
+maxStars={5}
+/>
+
+<TouchableOpacity
+style={styles.rateBtn}
+onPress={()=>submitRating(item.g_id)}
+>
+
+<Text style={styles.btnText}>Submit Rating</Text>
+
+</TouchableOpacity>
+
+</View>
+
+)}
+
+</View>
+
+)
+
+return(
+
+<View style={{flex:1}}>
+
+<FlatList
+data={guides}
+keyExtractor={(item)=>item.g_id.toString()}
+renderItem={renderGuide}
+/>
+
+</View>
+
+)
+
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f4f6f8",
-  },
 
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
+card:{
+padding:15,
+margin:10,
+borderWidth:1,
+borderRadius:10,
+backgroundColor:"#fff"
+},
 
-  /* ✅ Same style as Equipment Screen */
-  searchBar: {
-    backgroundColor: "#ffffff",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-    elevation: 3,
-  },
+image:{
+width:100,
+height:100,
+marginBottom:10
+},
 
-  dropdown: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    marginBottom: 12,
-    elevation: 2,
-  },
+name:{
+fontSize:18,
+fontWeight:"bold"
+},
 
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    padding: 15,
-    borderRadius: 18,
-    marginVertical: 8,
-    elevation: 4,
-  },
+rating:{
+marginTop:5,
+fontSize:16
+},
 
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
+selectBtn:{
+backgroundColor:"#007bff",
+padding:10,
+marginTop:10,
+borderRadius:5
+},
 
-  info: {
-    marginLeft: 15,
-    flex: 1,
-  },
+rateBtn:{
+backgroundColor:"#28a745",
+padding:10,
+marginTop:10,
+borderRadius:5
+},
 
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-});
+btnText:{
+color:"#fff",
+textAlign:"center"
+}
+
+})

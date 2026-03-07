@@ -140,7 +140,7 @@ def get_user_complaints(username):
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT id, category, description, latitude, longitude, created_at
+        SELECT id, category, description, latitude, longitude, status, created_at
         FROM complaints
         WHERE username = %s
         ORDER BY created_at DESC
@@ -153,6 +153,59 @@ def get_user_complaints(username):
     conn.close()
 
     return jsonify(complaints)
+
+@app.route("/guides", methods=["GET"])
+def get_guides():
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT g_id, name, languages, status, profile_photo, rating
+        FROM guide
+    """
+
+    cursor.execute(query)
+    guides = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(guides)
+
+@app.route("/rate-guide", methods=["POST"])
+def rate_guide():
+
+    data = request.json
+    guide_id = data["guide_id"]
+    username = data["username"]
+    rating = data["rating"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO guide_ratings (username, guide_id, rating)
+        VALUES (%s,%s,%s)
+        ON DUPLICATE KEY UPDATE rating=%s
+    """,(username,guide_id,rating,rating))
+
+    cursor.execute("""
+        UPDATE guide
+        SET rating = (
+            SELECT AVG(rating)
+            FROM guide_ratings
+            WHERE guide_id=%s
+        )
+        WHERE g_id=%s
+    """,(guide_id,guide_id))
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message":"Rating submitted"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True)
