@@ -25,8 +25,12 @@ const [emergency_contact, setEmergency] = useState("")
 
 const API_URL = "http://10.17.96.190:5000"
 
+useEffect(()=>{
+fetchProfile()
+},[])
 
-// ---------------- FETCH PROFILE + COMPLAINT COUNT ----------------
+
+// ---------------- FETCH PROFILE ----------------
 const fetchProfile = async () => {
 
 try{
@@ -43,7 +47,6 @@ const uname = parsedUser.username
 
 setUsername(uname)
 
-// -------- PROFILE --------
 const response = await fetch(`${API_URL}/profile/${uname}`)
 const data = await response.json()
 
@@ -53,8 +56,6 @@ setAddress(data.address || "")
 setNationality(data.nationality || "")
 setEmergency(data.emergency_contact || "")
 
-
-// -------- COMPLAINT COUNT --------
 const complaintRes = await fetch(`${API_URL}/user-complaints/${uname}`)
 const complaintData = await complaintRes.json()
 
@@ -66,10 +67,6 @@ Alert.alert("Error","Unable to load profile")
 }
 
 }
-
-useEffect(()=>{
-fetchProfile()
-},[])
 
 
 // ---------------- SAVE PROFILE ----------------
@@ -91,13 +88,11 @@ emergency_contact
 })
 })
 
-const data = await response.json()
-
 if(response.ok){
-Alert.alert("Success","Profile Updated Successfully")
+Alert.alert("Success","Profile Updated")
 setIsEditing(false)
 }else{
-Alert.alert("Error",data.message)
+Alert.alert("Error","Update failed")
 }
 
 }catch(error){
@@ -116,20 +111,27 @@ logoutUser()
 }
 
 
-
 return(
 
 <ScrollView contentContainerStyle={styles.container}>
 
+{/* HEADER */}
+
+<View style={styles.header}>
+
 <Image
 source={{
-uri:"https://cdn-icons-png.flaticon.com/512/149/149071.png",
+uri:"https://cdn-icons-png.flaticon.com/512/149/149071.png"
 }}
 style={styles.avatar}
 />
 
+<Text style={styles.username}>{username}</Text>
 
-{/* ---------------- PERSONAL INFO ---------------- */}
+</View>
+
+
+{/* PERSONAL INFO CARD */}
 
 <View style={styles.card}>
 
@@ -202,49 +204,41 @@ keyboardType="numeric"
 </View>
 
 
-{/* ---------------- BOOKINGS ---------------- */}
+{/* DASHBOARD CARDS */}
 
-<View style={styles.card}>
-<Text style={styles.sectionTitle}>Bookings</Text>
-<Text style={styles.statText}>Total Equipment Bookings: 5</Text>
-</View>
-
-
-{/* ---------------- GUIDES ---------------- */}
-
-<View style={styles.card}>
-<Text style={styles.sectionTitle}>Guides</Text>
-<Text style={styles.statText}>Total Guides Booked: 3</Text>
-</View>
-
-
-{/* ---------------- COMPLAINTS ---------------- */}
+<View style={styles.dashboardRow}>
 
 <TouchableOpacity
-style={styles.card}
-onPress={() => navigation.navigate("MyComplaints")}
+style={styles.dashboardCard}
+onPress={()=>navigation.navigate("MyComplaints")}
 >
 
-<Text style={styles.sectionTitle}>Complaints</Text>
-
-<Text style={styles.statText}>
-Total Complaints Raised: {complaintCount}
-</Text>
-
-<Text style={{color:"#1e88e5",marginTop:5}}>
-Tap to view details →
-</Text>
+<Text style={styles.dashboardTitle}>Complaints</Text>
+<Text style={styles.dashboardNumber}>{complaintCount}</Text>
+<Text style={styles.dashboardSub}>View Details</Text>
 
 </TouchableOpacity>
 
 
+<TouchableOpacity
+style={styles.dashboardCard}
+onPress={()=>navigation.navigate("Guide")}
+>
 
-{/* ---------------- LOGOUT ---------------- */}
+<Text style={styles.dashboardTitle}>Guides</Text>
+<Text style={styles.dashboardNumber}>Explore</Text>
+<Text style={styles.dashboardSub}>Book a Guide</Text>
+
+</TouchableOpacity>
+
+</View>
+
+
+{/* LOGOUT */}
 
 <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
 <Text style={styles.logoutText}>Logout</Text>
 </TouchableOpacity>
-
 
 </ScrollView>
 
@@ -258,41 +252,48 @@ const styles = StyleSheet.create({
 
 container:{
 padding:20,
-paddingBottom:40,
-backgroundColor:"#f4f6f8",
+backgroundColor:"#f2f5f9",
+},
+
+header:{
+alignItems:"center",
+marginBottom:20
 },
 
 avatar:{
-width:130,
-height:130,
-borderRadius:65,
-alignSelf:"center",
-marginBottom:25,
+width:110,
+height:110,
+borderRadius:55,
+marginBottom:10
+},
+
+username:{
+fontSize:20,
+fontWeight:"bold"
 },
 
 card:{
-backgroundColor:"#ffffff",
+backgroundColor:"#fff",
 padding:18,
-borderRadius:18,
+borderRadius:16,
 marginBottom:20,
-elevation:4,
+elevation:4
 },
 
 sectionTitle:{
 fontSize:18,
-fontWeight:"bold",
-marginBottom:12,
+fontWeight:"bold"
 },
 
 label:{
 fontSize:13,
 color:"gray",
-marginTop:8,
+marginTop:8
 },
 
 value:{
 fontSize:15,
-marginTop:4,
+marginTop:3
 },
 
 input:{
@@ -300,50 +301,77 @@ borderWidth:1,
 borderColor:"#ddd",
 borderRadius:10,
 padding:10,
-marginTop:4,
+marginTop:4
 },
 
 rowBetween:{
 flexDirection:"row",
 justifyContent:"space-between",
-alignItems:"center",
+alignItems:"center"
 },
 
 editText:{
 color:"#1e88e5",
-fontWeight:"600",
+fontWeight:"600"
 },
 
 saveBtn:{
 backgroundColor:"#1e88e5",
 padding:12,
-borderRadius:12,
+borderRadius:10,
 marginTop:15,
-alignItems:"center",
+alignItems:"center"
 },
 
 saveText:{
 color:"#fff",
-fontWeight:"600",
+fontWeight:"bold"
 },
 
-statText:{
-fontSize:15,
-marginTop:6,
+dashboardRow:{
+flexDirection:"row",
+justifyContent:"space-between",
+marginBottom:20
+},
+
+dashboardCard:{
+backgroundColor:"#fff",
+width:"48%",
+padding:20,
+borderRadius:16,
+alignItems:"center",
+elevation:4
+},
+
+dashboardTitle:{
+fontSize:16,
+fontWeight:"bold"
+},
+
+dashboardNumber:{
+fontSize:22,
+fontWeight:"bold",
+marginTop:5,
+color:"#1e88e5"
+},
+
+dashboardSub:{
+fontSize:12,
+color:"gray",
+marginTop:3
 },
 
 logoutBtn:{
 backgroundColor:"#e53935",
 padding:14,
 borderRadius:15,
-alignItems:"center",
-marginTop:10,
+alignItems:"center"
 },
 
 logoutText:{
 color:"#fff",
 fontWeight:"bold",
-fontSize:16,
+fontSize:16
 }
 
 })

@@ -207,5 +207,20 @@ def rate_guide():
 
     return jsonify({"message":"Rating submitted"})
 
+@app.route("/prices", methods=["GET"])
+def get_prices():
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, name, base_price FROM price_items")
+
+    prices = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(prices)    
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True)
