@@ -100,14 +100,13 @@ const styles = StyleSheet.create({
   adImage: {
     width: width * 0.9,
     height: 150,
-    borderRadius: 15,
+    borderRadius: 10,
     marginHorizontal: 10,
   },
   options: {
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "white",
     marginTop: 20,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+    borderRadius: 0,
     padding: 20,
   },
   chatButton: {

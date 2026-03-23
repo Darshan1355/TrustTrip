@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "white",
   },
 
   title: {
@@ -104,8 +104,8 @@ const styles = StyleSheet.create({
     height: 160,
     backgroundColor: "#fff",
     borderRadius: 5,
-    borderColor: "#ddd",
-    borderWidth: 1,
+    borderColor: "white",
+    borderWidth: 0,
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,

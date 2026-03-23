@@ -15,14 +15,14 @@ import LanguageScreen from "../screens/LanguageScreen";
 import WomenSafetyScreen from "../screens/women/WomenSafetyScreen";
 import GuideScreen from "../screens/GuideScreen";
 import SOSScreen from "../screens/SOS/SOSScreen";
-import ComplaintScreen from "../screens/ComplaintScreen";
+import ComplaintScreen from "../screens/complaints/ComplaintScreen";
 import PriceCheckScreen from "../screens/PriceCheckScreen";
 import CrowdScreen from "../screens/CrowdScreen";
 import EquipmentScreen from "../screens/Equipment/EquipmentScreen";
 import WomenSafetyDetailScreen from "../screens/women/WomenSafetyDetailScreen";
 import SOSDetailScreen from "../screens/SOS/SOSDetailScreen";
 import ChatBotScreen from "../screens/ChatBotScreen";
-import MyComplaintsScreen from "../screens/MyComplaintsScreen";
+import MyComplaintsScreen from "../screens/complaints/MyComplaintsScreen";
 
 const Stack = createNativeStackNavigator();
 
