@@ -7,9 +7,12 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const API_URL = "http://10.17.96.190:5000";
 
 export default function EquipmentDetailsScreen({ route }: any) {
   const { item } = route.params;
@@ -18,13 +21,29 @@ export default function EquipmentDetailsScreen({ route }: any) {
   const [userLocation, setUserLocation] = useState<any>(null);
   const [deliveryLocation, setDeliveryLocation] = useState<any>(null);
   const [showMap, setShowMap] = useState(false);
+  const [pricePerItem, setPricePerItem] = useState(0);
 
   const mapRef = useRef<MapView>(null);
 
-  const pricePerItem = 200;
+  // 🔥 Fetch real price from backend
+  useEffect(() => {
+    fetchPrice();
+  }, []);
+
+  const fetchPrice = async () => {
+    try {
+      const res = await fetch(`${API_URL}/equipment/${item.id}`);
+      const data = await res.json();
+
+      setPricePerItem(data.price || 200);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const totalPrice = pricePerItem * quantity;
 
-  // Request location
+  // 📍 Get location
   const getLiveLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -35,7 +54,7 @@ export default function EquipmentDetailsScreen({ route }: any) {
     const location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
 
-    // Simulate delivery starting point
+    // fake delivery location
     setDeliveryLocation({
       latitude: location.coords.latitude + 0.01,
       longitude: location.coords.longitude + 0.01,
@@ -44,7 +63,7 @@ export default function EquipmentDetailsScreen({ route }: any) {
     setShowMap(true);
   };
 
-  // Simulate real-time delivery movement
+  // 🚚 Simulate delivery movement
   useEffect(() => {
     if (!deliveryLocation || !userLocation) return;
 
@@ -52,36 +71,68 @@ export default function EquipmentDetailsScreen({ route }: any) {
       setDeliveryLocation((prev: any) => {
         if (!prev) return prev;
 
-        const newLat =
-          prev.latitude +
-          (userLocation.latitude - prev.latitude) * 0.1;
-        const newLng =
-          prev.longitude +
-          (userLocation.longitude - prev.longitude) * 0.1;
-
-        return { latitude: newLat, longitude: newLng };
+        return {
+          latitude:
+            prev.latitude +
+            (userLocation.latitude - prev.latitude) * 0.1,
+          longitude:
+            prev.longitude +
+            (userLocation.longitude - prev.longitude) * 0.1,
+        };
       });
     }, 2000);
 
     return () => clearInterval(interval);
   }, [deliveryLocation, userLocation]);
 
-  // Send notification
+  // 🧾 PLACE ORDER (CONNECTED TO BACKEND)
 
 
-  const handleOrder = async () => {
-    if (!userLocation) {
-      Alert.alert("Please share live location first.");
-      return;
-    }
+const handleOrder = async () => {
 
-    
+  if (!userLocation) {
+    Alert.alert("Please share live location first.");
+    return;
+  }
 
-    Alert.alert(
-      "Order Placed",
-      `Product: ${item.name}\nQuantity: ${quantity}\nTotal: ₹${totalPrice}`
-    );
-  };
+  const user = await AsyncStorage.getItem("user");
+
+  if (!user) {
+    Alert.alert("User not logged in");
+    return;
+  }
+
+  const parsedUser = JSON.parse(user);
+
+  if (!parsedUser.id) {
+    Alert.alert("User ID missing — login issue");
+    return;
+  }
+
+  const response = await fetch("http://10.17.96.190:5000/place-order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      user_id: parsedUser.id,   // ✅ MUST WORK NOW
+      equipment_id: Number(item.id),
+      quantity: quantity,
+      total_price: totalPrice,
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+    }),
+  });
+
+  const data = await response.json();
+
+
+  if (response.ok) {
+    Alert.alert("Success", data.message);
+  } else {
+    Alert.alert("Error", data.error);
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -91,7 +142,7 @@ export default function EquipmentDetailsScreen({ route }: any) {
       <Text style={styles.price}>₹{pricePerItem} / item</Text>
       <Text style={styles.total}>Total: ₹{totalPrice}</Text>
 
-      {/* Quantity Controls */}
+      {/* Quantity */}
       <View style={styles.quantityRow}>
         <TouchableOpacity
           style={styles.qtyBtn}
@@ -110,9 +161,11 @@ export default function EquipmentDetailsScreen({ route }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* Live Location */}
+      {/* Location */}
       <TouchableOpacity style={styles.locationBtn} onPress={getLiveLocation}>
-        <Text style={{ color: "#fff" }}>Get Live Location</Text>
+        <Text style={{ color: "#fff" }}>
+          {userLocation ? "Location Added ✓" : "Get Live Location"}
+        </Text>
       </TouchableOpacity>
 
       {/* Map */}
@@ -127,23 +180,15 @@ export default function EquipmentDetailsScreen({ route }: any) {
             longitudeDelta: 0.02,
           }}
         >
-          <Marker
-            coordinate={userLocation}
-            title="Your Location"
-            pinColor="blue"
-          />
+          <Marker coordinate={userLocation} title="You" />
 
           {deliveryLocation && (
-            <Marker
-              coordinate={deliveryLocation}
-              title="Delivery Partner"
-              pinColor="red"
-            />
+            <Marker coordinate={deliveryLocation} title="Delivery" />
           )}
         </MapView>
       )}
 
-      {/* Order Button */}
+      {/* Order */}
       <TouchableOpacity style={styles.orderBtn} onPress={handleOrder}>
         <Text style={{ color: "#fff", fontWeight: "bold" }}>
           Place Order
@@ -155,9 +200,13 @@ export default function EquipmentDetailsScreen({ route }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
+
   image: { width: "100%", height: 200, resizeMode: "contain" },
+
   name: { fontSize: 22, fontWeight: "bold", marginTop: 10 },
+
   price: { fontSize: 16, marginTop: 5 },
+
   total: { fontSize: 18, marginVertical: 10, fontWeight: "bold" },
 
   quantityRow: {
@@ -165,12 +214,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 15,
   },
+
   qtyBtn: {
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 8,
   },
+
   qtyText: { color: "#fff", fontSize: 18 },
+
   qtyNumber: { marginHorizontal: 20, fontSize: 18 },
 
   locationBtn: {

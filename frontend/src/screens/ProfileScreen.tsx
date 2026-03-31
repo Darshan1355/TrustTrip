@@ -219,7 +219,13 @@ onPress={()=>navigation.navigate("MyComplaints")}
 
 </TouchableOpacity>
 
-
+<TouchableOpacity
+  style={styles.card}
+  onPress={() => navigation.navigate("MyOrders")}
+>
+  <Text style={styles.sectionTitle}>My Orders</Text>
+  <Text style={styles.statText}>View your equipment orders</Text>
+</TouchableOpacity>
 <TouchableOpacity
 style={styles.dashboardCard}
 onPress={()=>navigation.navigate("Guide")}
@@ -249,6 +255,12 @@ onPress={()=>navigation.navigate("Guide")}
 
 
 const styles = StyleSheet.create({
+
+statText: {
+  fontSize: 15,
+  color: "#555",
+  marginTop: 6,
+},    
 
 container:{
 padding:20,

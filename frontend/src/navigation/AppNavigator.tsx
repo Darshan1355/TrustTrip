@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 /* AUTH SCREENS */
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
@@ -23,6 +24,7 @@ import WomenSafetyDetailScreen from "../screens/women/WomenSafetyDetailScreen";
 import SOSDetailScreen from "../screens/SOS/SOSDetailScreen";
 import ChatBotScreen from "../screens/ChatBotScreen";
 import MyComplaintsScreen from "../screens/complaints/MyComplaintsScreen";
+import MyOrdersScreen from "../screens/Equipment/MyOrdersScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +77,7 @@ export default function AppNavigator() {
               {(props) => <ProfileScreen {...props} logoutUser={logoutUser} />}
             </Stack.Screen>
             <Stack.Screen name="MyComplaints" component={MyComplaintsScreen} />
+            <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
             <Stack.Screen name="WomenSafetyDetail" component={WomenSafetyDetailScreen} />

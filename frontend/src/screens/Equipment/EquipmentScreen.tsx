@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 
 import {
@@ -10,58 +10,68 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
 const CARD_SIZE = width / 2 - 30;
 
-const equipmentData = [
-  {
-    id: "1",
-    name: "First Aid Box",
-    image: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
-  },
-  {
-    id: "2",
-    name: "Baby Feeding Kit",
-    image: "https://cdn-icons-png.flaticon.com/512/2922/2922510.png",
-  },
-  {
-    id: "3",
-    name: "Helmet",
-    image: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
-  },
-  {
-    id: "4",
-    name: "Life Jacket",
-    image: "https://cdn-icons-png.flaticon.com/512/865/865969.png",
-  },
-  {
-    id: "5",
-    name: "Trekking Kit",
-    image: "https://cdn-icons-png.flaticon.com/512/2965/2965567.png",
-  },
-  {
-    id: "6",
-    name: "Flashlight",
-    image: "https://cdn-icons-png.flaticon.com/512/2913/2913462.png",
-  },
-];
+const API_URL = "http://10.17.96.190:5000";
+
+type Equipment = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  status: string;
+};
 
 export default function EquipmentScreen() {
-  const navigation = useNavigation<any>(); // ✅ must be inside component
-  const [search, setSearch] = useState("");
+  const navigation = useNavigation<any>();
 
+  const [search, setSearch] = useState("");
+  const [equipmentData, setEquipmentData] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ---------------- FETCH DATA ----------------
+  const fetchEquipment = async () => {
+    try {
+      const res = await fetch(`${API_URL}/equipment`);
+      const data = await res.json();
+
+      setEquipmentData(data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEquipment();
+  }, []);
+
+  // ---------------- SEARCH FILTER ----------------
   const filteredData = equipmentData.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // ---------------- LOADING ----------------
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#1e88e5" />
+        <Text>Loading Equipment...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* Title */}
+      {/* TITLE */}
       <Text style={styles.title}>Safety Equipment Rental</Text>
 
-      {/* Search Bar */}
+      {/* SEARCH BAR */}
       <TextInput
         placeholder="Search equipment..."
         value={search}
@@ -69,10 +79,10 @@ export default function EquipmentScreen() {
         style={styles.searchBar}
       />
 
-      {/* Grid */}
+      {/* GRID */}
       <FlatList
         data={filteredData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         showsVerticalScrollIndicator={false}
@@ -85,9 +95,28 @@ export default function EquipmentScreen() {
             }
           >
             <View style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.image} />
+              <Image
+                source={{
+                  uri: `${API_URL}/static/equipment/${item.image}`,
+                }}
+                style={styles.image}
+              />
             </View>
+
             <Text style={styles.name}>{item.name}</Text>
+
+            <Text style={styles.price}>₹{item.price}</Text>
+
+            <Text
+              style={[
+                styles.status,
+                item.status === "available"
+                  ? styles.available
+                  : styles.unavailable,
+              ]}
+            >
+              {item.status}
+            </Text>
           </TouchableOpacity>
         )}
       />
@@ -132,15 +161,42 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     resizeMode: "contain",
   },
 
   name: {
-    marginTop: 10,
+    marginTop: 8,
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
+  },
+
+  price: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1e88e5",
+  },
+
+  status: {
+    marginTop: 2,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  available: {
+    color: "green",
+  },
+
+  unavailable: {
+    color: "red",
+  },
+
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
