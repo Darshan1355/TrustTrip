@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function MyComplaintsScreen() {
 
 const [complaints,setComplaints] = useState([])
-const API_URL = "http://10.17.96.190:5000"
+const API_URL = "http://10.215.185.190:5000"
 
 useEffect(()=>{
 loadComplaints()

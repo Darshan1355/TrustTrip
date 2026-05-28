@@ -13,7 +13,7 @@ const [emergency_contact,setEmergencyContact]=useState("")
 
 const register = async () => {
 
-const res = await fetch("http://10.17.96.190:5000/register",{
+const res = await fetch("http://10.215.185.190:5000/register",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"

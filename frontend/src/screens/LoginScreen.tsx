@@ -11,7 +11,7 @@ const login = async () => {
 
 try{
 
-const res = await fetch("http://10.17.96.190:5000/login",{
+const res = await fetch("http://10.215.185.190:5000/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({username,password})
