@@ -48,7 +48,12 @@ const uname = parsedUser.username
 setUsername(uname)
 
 const response = await fetch(`${API_URL}/profile/${uname}`)
-const data = await response.json()
+
+const text = await response.text()
+
+console.log("PROFILE RESPONSE:", text)
+
+const data = JSON.parse(text)
 
 setName(data.name || "")
 setMobile(data.mob || "")
@@ -57,8 +62,12 @@ setNationality(data.nationality || "")
 setEmergency(data.emergency_contact || "")
 
 const complaintRes = await fetch(`${API_URL}/user-complaints/${uname}`)
-const complaintData = await complaintRes.json()
 
+const complaintText = await complaintRes.text()
+
+console.log("COMPLAINT RESPONSE:", complaintText)
+
+const complaintData = JSON.parse(complaintText)
 setComplaintCount(complaintData.length)
 
 }catch(error){
