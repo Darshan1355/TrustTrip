@@ -45,5 +45,11 @@ def home():
         "message": "Backend Running"
     })
 
+@app.route("/test-route")
+def test_route():
+    return jsonify({
+        "status": "all routes working"
+    })
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
