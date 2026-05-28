@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 from routes.auth_routes import auth_bp
@@ -41,7 +41,9 @@ db = SQLAlchemy(app)
 
 @app.route("/")
 def home():
-    return "Backend Running"
+      return jsonify({
+        "message": "Backend Running"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
