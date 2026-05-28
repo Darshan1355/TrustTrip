@@ -10,7 +10,7 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = "http://10.215.185.190:5000";
+const API_URL = "https://trusttrip-nng1.onrender.com";
 
 type Order = {
   id: number;

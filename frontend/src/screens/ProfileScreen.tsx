@@ -23,7 +23,7 @@ const [address, setAddress] = useState("")
 const [nationality, setNationality] = useState("")
 const [emergency_contact, setEmergency] = useState("")
 
-const API_URL = "http://10.215.185.190:5000"
+const API_URL = "https://trusttrip-nng1.onrender.com"
 
 useEffect(()=>{
 fetchProfile()

@@ -57,7 +57,7 @@ export default function ComplaintScreen() {
     const parsedUser = JSON.parse(user);
     const username = parsedUser.username;
 
-    const response = await fetch("http://10.215.185.190:5000/complaint", {
+    const response = await fetch("https://trusttrip-nng1.onrender.com/complaint", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
