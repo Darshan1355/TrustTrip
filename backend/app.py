@@ -1,5 +1,8 @@
+import os
+
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 from routes.auth_routes import auth_bp
 from routes.profile_routes import profile_bp
@@ -10,20 +13,7 @@ from routes.equipment_routes import equipment_bp
 app = Flask(__name__)
 CORS(app)
 
-# Register Blueprints
-app.register_blueprint(auth_bp)
-app.register_blueprint(profile_bp)
-app.register_blueprint(complaint_bp)
-app.register_blueprint(guide_bp)
-app.register_blueprint(equipment_bp)
-
-import os
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
+# ---------------- DATABASE CONFIG ----------------
 
 DB_USER = os.environ.get("MYSQLUSER")
 DB_PASSWORD = os.environ.get("MYSQLPASSWORD")
@@ -39,9 +29,19 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+# ---------------- REGISTER BLUEPRINTS ----------------
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(complaint_bp)
+app.register_blueprint(guide_bp)
+app.register_blueprint(equipment_bp)
+
+# ---------------- TEST ROUTE ----------------
+
 @app.route("/")
 def home():
-      return jsonify({
+    return jsonify({
         "message": "Backend Running"
     })
 
