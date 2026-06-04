@@ -7,34 +7,63 @@ export default function LoginScreen({ navigation, loginUser }: any) {
 const [username, setUsername] = useState("")
 const [password, setPassword] = useState("")
 
+
 const login = async () => {
 
-try{
+try {
 
-const res = await fetch("https://trusttrip-nng1.onrender.com/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({username,password})
+console.log("Trying login...")
+
+const res = await fetch("https://trusttrip-nng1.onrender.com/login", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+username,
+password
+})
 })
 
-const data = await res.json()
+console.log("STATUS:", res.status)
 
-if(data.success){
+const text = await res.text()
 
-// SAVE USER INFO
-await AsyncStorage.setItem("user", JSON.stringify(data.user))
+console.log("RAW RESPONSE:", text)
+
+const data = JSON.parse(text)
+
+if (data.success) {
+
+await AsyncStorage.setItem(
+"user",
+JSON.stringify(data.user)
+)
 
 loginUser(data.user)
 
-}else{
-Alert.alert("Login Failed","Invalid username or password")
+} else {
+
+Alert.alert(
+"Login Failed",
+"Invalid username or password"
+)
+
 }
 
-}catch(err){
-Alert.alert("Error","Server not reachable")
+} catch (err) {
+
+console.log("LOGIN ERROR:", err)
+
+Alert.alert(
+"Error",
+JSON.stringify(err)
+)
+
 }
 
 }
+
 
 return(
 
