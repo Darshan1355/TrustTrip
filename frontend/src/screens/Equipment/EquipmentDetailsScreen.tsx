@@ -12,11 +12,9 @@ import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-<<<<<<< HEAD
+
 const API_URL = "http://10.215.185.190:5000";
-=======
-const API_URL = "https://trusttrip-nng1.onrender.com";
->>>>>>> origin/main
+
 
 export default function EquipmentDetailsScreen({ route }: any) {
   const { item } = route.params;

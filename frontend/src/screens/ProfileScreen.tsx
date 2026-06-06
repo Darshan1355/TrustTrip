@@ -23,7 +23,7 @@ const [address, setAddress] = useState("")
 const [nationality, setNationality] = useState("")
 const [emergency_contact, setEmergency] = useState("")
 
-const API_URL = "http://10.103.226.190:5000"
+const API_URL = "http://10.215.185.190:5000"
 
 useEffect(()=>{
 fetchProfile()
@@ -51,7 +51,7 @@ const response = await fetch(`${API_URL}/profile/${uname}`)
 
 const text = await response.text()
 
-console.log("PROFILE RESPONSE:", text)
+
 
 const data = JSON.parse(text)
 
@@ -65,7 +65,7 @@ const complaintRes = await fetch(`${API_URL}/user-complaints/${uname}`)
 
 const complaintText = await complaintRes.text()
 
-console.log("COMPLAINT RESPONSE:", complaintText)
+
 
 const complaintData = JSON.parse(complaintText)
 setComplaintCount(complaintData.length)

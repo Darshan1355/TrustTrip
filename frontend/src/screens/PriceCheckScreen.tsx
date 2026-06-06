@@ -6,21 +6,21 @@ StyleSheet,
 FlatList,
 TextInput
 } from "react-native";
+  
 
 import { Picker } from "@react-native-picker/picker";
 
-<<<<<<< HEAD
-const API_URL = "http://10.103.226.190:5000";
-=======
-const API_URL = "https://trusttrip-nng1.onrender.com";
->>>>>>> origin/main
+
+const API_URL = "http://10.215.185.190:5000";
+
+
 
 export default function PriceCheckScreen() {
 
 const [location,setLocation] = useState("")
 const [category,setCategory] = useState("Tourist")   // DEFAULT
 const [prices,setPrices] = useState<any[]>([])
-const [search,setSearch] = useState("")
+const [search,setSearch] = useState("") 
 
 useEffect(()=>{
 fetchPrices()
