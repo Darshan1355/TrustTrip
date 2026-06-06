@@ -16,7 +16,11 @@ import {
 const { width } = Dimensions.get("window");
 const CARD_SIZE = width / 2 - 30;
 
+<<<<<<< HEAD
 const API_URL = "http://10.103.226.190:5000";
+=======
+const API_URL = "https://trusttrip-nng1.onrender.com";
+>>>>>>> origin/main
 
 type Equipment = {
   id: number;

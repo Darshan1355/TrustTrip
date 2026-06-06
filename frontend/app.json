@@ -5,15 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "expo": {
-          "plugins": [
-            [
-              "expo-location",
-              {
-                "locationAlwaysAndWhenInUsePermission": "Allow TrustTrip to access your location."
-              }
-            ]
-          ]
-        },
+      "plugins": [
+        [
+          "expo-location",
+          {
+            "locationAlwaysAndWhenInUsePermission": "Allow TrustTrip to access your location."
+          }
+        ]
+      ]
+    },
     "scheme": "trusttrip",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -21,18 +21,19 @@
       "supportsTablet": true
     },
     "android": {
-
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static"
-      
     },
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "plugins": [
+      "expo-web-browser",
+      "expo-router"
+    ]
   }
 }

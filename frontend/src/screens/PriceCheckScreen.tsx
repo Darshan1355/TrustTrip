@@ -9,7 +9,11 @@ TextInput
 
 import { Picker } from "@react-native-picker/picker";
 
+<<<<<<< HEAD
 const API_URL = "http://10.103.226.190:5000";
+=======
+const API_URL = "https://trusttrip-nng1.onrender.com";
+>>>>>>> origin/main
 
 export default function PriceCheckScreen() {
 
