@@ -23,7 +23,7 @@ const [address, setAddress] = useState("")
 const [nationality, setNationality] = useState("")
 const [emergency_contact, setEmergency] = useState("")
 
-const API_URL = "https://trusttrip-nng1.onrender.com"
+const API_URL = "http://10.103.226.190:5000"
 
 useEffect(()=>{
 fetchProfile()
@@ -140,6 +140,8 @@ style={styles.avatar}
 </View>
 
 
+
+
 {/* PERSONAL INFO CARD */}
 
 <View style={styles.card}>
@@ -213,6 +215,37 @@ keyboardType="numeric"
 </View>
 
 
+<View style={styles.profileStatsContainer}>
+
+  <View style={styles.statCard}>
+    <Text style={styles.statNumber}>
+      {complaintCount}
+    </Text>
+    <Text style={styles.statLabel}>
+      Complaints
+    </Text>
+  </View>
+
+  <View style={styles.statCard}>
+    <Text style={styles.statNumber}>
+      100%
+    </Text>
+    <Text style={styles.statLabel}>
+      Verified
+    </Text>
+  </View>
+
+  <View style={styles.statCard}>
+    <Text style={styles.statNumber}>
+      ✓
+    </Text>
+    <Text style={styles.statLabel}>
+      Active
+    </Text>
+  </View>
+
+</View>
+
 {/* DASHBOARD CARDS */}
 
 <View style={styles.dashboardRow}>
@@ -229,7 +262,7 @@ onPress={()=>navigation.navigate("MyComplaints")}
 </TouchableOpacity>
 
 <TouchableOpacity
-  style={styles.card}
+  style={styles.dashboardCard}
   onPress={() => navigation.navigate("MyOrders")}
 >
   <Text style={styles.sectionTitle}>My Orders</Text>
@@ -264,135 +297,250 @@ onPress={()=>navigation.navigate("Guide")}
 
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: "#F8FAFC",
+    paddingBottom: 40,
+  },
 
-statText: {
-  fontSize: 15,
-  color: "#555",
-  marginTop: 6,
-},    
+  header: {
+    alignItems: "center",
+    marginBottom: 25,
+  },
 
-container:{
-padding:20,
-backgroundColor:"#f2f5f9",
-},
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
 
-header:{
-alignItems:"center",
-marginBottom:20
-},
+    borderWidth: 4,
+    borderColor: "#EEF2FF",
 
-avatar:{
-width:110,
-height:110,
-borderRadius:55,
-marginBottom:10
-},
+    marginBottom: 12,
+  },
 
-username:{
-fontSize:20,
-fontWeight:"bold"
-},
+  username: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#111827",
+  },
 
-card:{
-backgroundColor:"#fff",
-padding:18,
-borderRadius:16,
-marginBottom:20,
-elevation:4
-},
+  card: {
+    backgroundColor: "#FFFFFF",
 
-sectionTitle:{
-fontSize:18,
-fontWeight:"bold"
-},
+    padding: 20,
 
-label:{
-fontSize:13,
-color:"gray",
-marginTop:8
-},
+    borderRadius: 24,
 
-value:{
-fontSize:15,
-marginTop:3
-},
+    marginBottom: 18,
 
-input:{
-borderWidth:1,
-borderColor:"#ddd",
-borderRadius:10,
-padding:10,
-marginTop:4
-},
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
 
-rowBetween:{
-flexDirection:"row",
-justifyContent:"space-between",
-alignItems:"center"
-},
+    elevation: 8,
+  },
 
-editText:{
-color:"#1e88e5",
-fontWeight:"600"
-},
+  sectionTitle: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: "#111827",
+  },
 
-saveBtn:{
-backgroundColor:"#1e88e5",
-padding:12,
-borderRadius:10,
-marginTop:15,
-alignItems:"center"
-},
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#6B7280",
+    marginTop: 14,
+    marginBottom: 4,
+  },
 
-saveText:{
-color:"#fff",
-fontWeight:"bold"
-},
+  value: {
+    fontSize: 15,
+    color: "#111827",
+    fontWeight: "500",
+  },
 
-dashboardRow:{
-flexDirection:"row",
-justifyContent:"space-between",
-marginBottom:20
-},
+  input: {
+    backgroundColor: "#F9FAFB",
 
-dashboardCard:{
-backgroundColor:"#fff",
-width:"48%",
-padding:20,
-borderRadius:16,
-alignItems:"center",
-elevation:4
-},
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
 
-dashboardTitle:{
-fontSize:16,
-fontWeight:"bold"
-},
+    borderRadius: 14,
 
-dashboardNumber:{
-fontSize:22,
-fontWeight:"bold",
-marginTop:5,
-color:"#1e88e5"
-},
+    paddingHorizontal: 14,
+    paddingVertical: 12,
 
-dashboardSub:{
-fontSize:12,
-color:"gray",
-marginTop:3
-},
+    fontSize: 15,
+    color: "#111827",
+  },
 
-logoutBtn:{
-backgroundColor:"#e53935",
-padding:14,
-borderRadius:15,
-alignItems:"center"
-},
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
 
-logoutText:{
-color:"#fff",
-fontWeight:"bold",
-fontSize:16
-}
+  editText: {
+    color: "#4F46E5",
+    fontWeight: "700",
+    fontSize: 14,
+  },
 
-})
+  saveBtn: {
+    backgroundColor: "#4F46E5",
+
+    paddingVertical: 14,
+
+    borderRadius: 16,
+
+    marginTop: 20,
+
+    alignItems: "center",
+
+    shadowColor: "#4F46E5",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+
+    elevation: 5,
+  },
+
+  saveText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  dashboardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+  },
+
+  dashboardCard: {
+    backgroundColor: "#FFFFFF",
+
+    width: "100%",
+
+    paddingVertical: 22,
+    paddingHorizontal: 15,
+
+    borderRadius: 22,
+
+    alignItems: "center",
+
+    marginBottom: 15,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+
+    elevation: 6,
+  },
+
+  dashboardTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+  },
+
+  dashboardNumber: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#4F46E5",
+    marginTop: 6,
+  },
+
+  dashboardSub: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 5,
+    textAlign: "center",
+  },
+
+  statText: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 6,
+    textAlign: "center",
+  },
+
+  logoutBtn: {
+    backgroundColor: "#DC2626",
+
+    paddingVertical: 16,
+
+    borderRadius: 18,
+
+    alignItems: "center",
+
+    marginTop: 10,
+
+    shadowColor: "#DC2626",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+
+    elevation: 5,
+  },
+
+  logoutText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
+
+  profileStatsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+
+  statCard: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 5,
+    padding: 16,
+    borderRadius: 18,
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 4,
+  },
+
+  statNumber: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#4F46E5",
+  },
+
+  statLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 4,
+  },
+});

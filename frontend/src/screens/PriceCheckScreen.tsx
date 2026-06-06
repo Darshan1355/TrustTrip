@@ -9,7 +9,11 @@ TextInput
 
 import { Picker } from "@react-native-picker/picker";
 
+<<<<<<< HEAD
+const API_URL = "http://10.103.226.190:5000";
+=======
 const API_URL = "https://trusttrip-nng1.onrender.com";
+>>>>>>> origin/main
 
 export default function PriceCheckScreen() {
 
@@ -175,58 +179,102 @@ contentContainerStyle={{paddingBottom:20}}
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
 
-container:{
-flex:1,
-padding:20,
-backgroundColor:"#f4f6f8"
-},
+  title: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 24,
+    letterSpacing: 0.5,
+  },
 
-title:{
-fontSize:22,
-fontWeight:"bold",
-marginBottom:20
-},
+  input: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 18,
 
-input:{
-backgroundColor:"#fff",
-padding:12,
-borderRadius:12,
-marginBottom:15,
-elevation:3
-},
+    fontSize: 16,
+    color: "#111827",
 
-dropdown:{
-borderWidth:1,
-borderRadius:12,
-marginBottom:20,
-backgroundColor:"#fff"
-},
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
 
-card:{
-backgroundColor:"#fff",
-padding:18,
-borderRadius:15,
-marginBottom:15,
-elevation:4
-},
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
 
-productName:{
-fontSize:16,
-fontWeight:"bold",
-marginBottom:8
-},
+    elevation: 5,
+    marginBottom: 18,
+  },
 
-priceText:{
-fontSize:15,
-color:"#1e88e5",
-fontWeight:"600"
-},
+  dropdown: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    overflow: "hidden",
 
-rangeText:{
-marginTop:5,
-fontSize:14,
-color:"gray"
-}
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
 
-})
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+
+    elevation: 5,
+    marginBottom: 22,
+  },
+
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 22,
+    padding: 20,
+    marginBottom: 16,
+
+    borderLeftWidth: 5,
+    borderLeftColor: "#4F46E5",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+
+    elevation: 7,
+  },
+
+  productName: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 10,
+  },
+
+  priceText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#10B981",
+    marginBottom: 6,
+  },
+
+  rangeText: {
+    fontSize: 14,
+    color: "#6B7280",
+    lineHeight: 22,
+  },
+});

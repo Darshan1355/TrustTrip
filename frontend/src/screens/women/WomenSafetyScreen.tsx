@@ -46,35 +46,63 @@ export default function WomenSafetyScreen() {
   const navigation = useNavigation<any>();
 
   return (
+
+    
+
     <View style={styles.container}>
       <Text style={styles.title}>Women Safety Facilities</Text>
+
+       <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>
+            Women's Safety Dashboard
+          </Text>
+
+          <Text style={styles.infoText}>
+            Check available facilities and safety services nearby
+            to ensure a secure and comfortable travel experience.
+          </Text>
+       </View>
 
       <FlatList
         data={facilities}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.cardContainer}
-            onPress={() =>
-              navigation.navigate("WomenSafetyDetail", { facility: item })
-            }
-          >
-            <View style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.image} />
-            </View>
+         <TouchableOpacity
+  style={styles.cardContainer}
+  activeOpacity={0.9}
+  onPress={() =>
+    navigation.navigate("WomenSafetyDetail", { facility: item })
+  }
+>
+  <View style={styles.card}>
+    <View style={styles.imageContainer}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+    </View>
 
-            <Text style={styles.name}>{item.name}</Text>
+    <View style={styles.detailsContainer}>
+      <Text style={styles.name}>{item.name}</Text>
 
-            <Text
-              style={[
-                styles.status,
-                { color: item.available ? "green" : "red" },
-              ]}
-            >
-              {item.available ? "Available" : "Not Available"}
-            </Text>
-          </TouchableOpacity>
+      <View
+        style={
+          item.available
+            ? styles.availableBadge
+            : styles.unavailableBadge
+        }
+      >
+        <Text
+          style={
+            item.available
+              ? styles.availableText
+              : styles.unavailableText
+          }
+        >
+          {item.available ? "✓ Available" : "✕ Not Available"}
+        </Text>
+      </View>
+    </View>
+  </View>
+</TouchableOpacity>
         )}
       />
     </View>
@@ -84,31 +112,44 @@ export default function WomenSafetyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "white",
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 24,
+    letterSpacing: 0.5,
   },
 
   cardContainer: {
-    alignItems: "center",
-    marginBottom: 25,
+    marginBottom: 18,
   },
 
   card: {
-    width: "100%",
-    height: 160,
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    borderColor: "white",
-    borderWidth: 0,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
-    elevation: 5,
+
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+
+    padding: 18,
+
+    borderWidth: 1,
+    borderColor: "#EEF2FF",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+
+    elevation: 8,
   },
 
   image: {
@@ -117,14 +158,79 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
 
+  imageContainer: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: "#F4F7FF",
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginRight: 16,
+  },
+
+  detailsContainer: {
+    flex: 1,
+  },
+
   name: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 8,
   },
 
   status: {
-    marginTop: 5,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "700",
   },
+
+  availableBadge: {
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+  },
+
+  unavailableBadge: {
+    backgroundColor: "#FEE2E2",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+  },
+
+  availableText: {
+    color: "#16A34A",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  unavailableText: {
+    color: "#DC2626",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  infoCard: {
+  backgroundColor: "#4F46E5",
+  borderRadius: 24,
+  padding: 20,
+  marginBottom: 20,
+},
+
+infoTitle: {
+  color: "#FFFFFF",
+  fontSize: 20,
+  fontWeight: "700",
+  marginBottom: 8,
+},
+
+infoText: {
+  color: "#E0E7FF",
+  fontSize: 14,
+  lineHeight: 22,
+},
 });

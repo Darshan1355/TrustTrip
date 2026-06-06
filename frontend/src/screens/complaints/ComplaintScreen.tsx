@@ -57,7 +57,7 @@ export default function ComplaintScreen() {
     const parsedUser = JSON.parse(user);
     const username = parsedUser.username;
 
-    const response = await fetch("https://trusttrip-nng1.onrender.com/complaint", {
+    const response = await fetch("http://10.103.226.190:5000/complaint", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -103,13 +103,23 @@ export default function ComplaintScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Report an Issue</Text>
+      <View style={styles.headerCard}>
+          <Text style={styles.headerTitle}>
+            Community Issue Reporting
+          </Text>
+
+          <Text style={styles.headerSubtitle}>
+            Report problems instantly and help improve safety,
+            cleanliness, accessibility, and tourist experiences.
+          </Text>
+      </View>
 
       {/* Category Grid */}
       <FlatList
         data={categories}
         numColumns={2}
         keyExtractor={(item) => item}
-        columnWrapperStyle={{ justifyContent: "space-between" ,borderColor:"grey",borderWidth:1,marginBottom:10}}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
@@ -155,55 +165,183 @@ export default function ComplaintScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+
+  title: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
 
   categoryCard: {
-    backgroundColor: "#f2f2f2",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 12,
     width: "48%",
+    backgroundColor: "#FFFFFF",
+
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+
+    borderRadius: 18,
+
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+
     alignItems: "center",
+    justifyContent: "center",
+
+    marginBottom: 12,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 4,
   },
 
   selectedCard: {
-    backgroundColor: "#ffcc00",
+    backgroundColor: "#EEF2FF",
+    borderColor: "#4F46E5",
+    borderWidth: 2,
   },
 
   categoryText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
+    color: "#111827",
     textAlign: "center",
   },
 
   suggestion: {
-    marginVertical: 10,
-    fontSize: 13,
-    color: "green",
-    fontStyle: "italic",
+    backgroundColor: "#ECFDF5",
+
+    borderLeftWidth: 4,
+    borderLeftColor: "#10B981",
+
+    padding: 14,
+    borderRadius: 12,
+
+    marginTop: 8,
+    marginBottom: 16,
+
+    color: "#065F46",
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: "500",
   },
 
   input: {
+    backgroundColor: "#FFFFFF",
+
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 10,
-    height: 100,
-    marginVertical: 15,
+    borderColor: "#E5E7EB",
+
+    borderRadius: 18,
+
+    padding: 16,
+    height: 130,
+
+    textAlignVertical: "top",
+
+    fontSize: 15,
+    color: "#111827",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 4,
+
+    marginBottom: 18,
   },
 
   locationBtn: {
-    backgroundColor: "#007bff",
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: "#2563EB",
+
+    paddingVertical: 16,
+
+    borderRadius: 18,
+
     alignItems: "center",
+    justifyContent: "center",
+
+    shadowColor: "#2563EB",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+
+    elevation: 6,
+
     marginBottom: 15,
   },
 
   submitBtn: {
-    backgroundColor: "#ff6600",
-    padding: 15,
-    borderRadius: 12,
+    backgroundColor: "#F97316",
+
+    paddingVertical: 18,
+
+    borderRadius: 18,
+
     alignItems: "center",
+    justifyContent: "center",
+
+    shadowColor: "#F97316",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+
+    elevation: 6,
+  },
+
+  locationBtnText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  submitBtnText: {
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 16,
+    letterSpacing: 0.3,
+  },
+
+  headerCard: {
+    backgroundColor: "#4F46E5",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+  },
+
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+
+  headerSubtitle: {
+    color: "#E0E7FF",
+    fontSize: 14,
+    lineHeight: 22,
   },
 });

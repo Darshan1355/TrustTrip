@@ -12,17 +12,10 @@ const login = async () => {
 
 try {
 
-console.log("Trying login...")
-
-const res = await fetch("https://trusttrip-nng1.onrender.com/login", {
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({
-username,
-password
-})
+const res = await fetch("http://10.103.226.190:5000/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
 })
 
 console.log("STATUS:", res.status)
@@ -68,21 +61,46 @@ JSON.stringify(err)
 return(
 
 <View style={styles.container}>
+    <View style={styles.logoContainer}>
+  <View style={styles.logoCircle}>
+    <Text style={styles.logoEmoji}>🌍</Text>
+  </View>
+
+  <Text style={styles.title}>
+    TrustTrip
+  </Text>
+
+  <Text style={styles.subtitle}>
+    Safe • Smart • Trusted Travel Experience
+  </Text>
+</View>
 
 <Text style={styles.title}>TrustTrip Login</Text>
 
-<TextInput
-placeholder="Username"
-style={styles.input}
-onChangeText={setUsername}
-/>
+<View style={styles.inputContainer}>
+  <Text style={styles.label}>Username</Text>
 
-<TextInput
-placeholder="Password"
-style={styles.input}
-secureTextEntry
-onChangeText={setPassword}
-/>
+  <TextInput
+    placeholder="Enter your username"
+    style={styles.input}
+    onChangeText={setUsername}
+    placeholderTextColor="#9CA3AF"
+  />
+</View>
+
+<View style={styles.inputContainer}>
+  <Text style={styles.label}>Password</Text>
+
+  <TextInput
+    placeholder="Enter your password"
+    style={styles.input}
+    secureTextEntry
+    onChangeText={setPassword}
+    placeholderTextColor="#9CA3AF"
+  />
+</View>
+
+
 
 <TouchableOpacity style={styles.btn} onPress={login}>
 <Text style={styles.btnText}>Login</Text>
@@ -98,16 +116,139 @@ Create Account
 
 }
 
-const styles=StyleSheet.create({
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F8FAFC",
+    justifyContent: "center",
+    paddingHorizontal: 28,
+  },
 
-container:{flex:1,justifyContent:"center",padding:20},
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
 
-title:{fontSize:28,fontWeight:"bold",marginBottom:20},
+  logoCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
 
-input:{borderWidth:1,padding:10,marginBottom:10,borderRadius:8},
+    backgroundColor: "#EEF2FF",
 
-btn:{backgroundColor:"#1e88e5",padding:12,borderRadius:8},
+    justifyContent: "center",
+    alignItems: "center",
 
-btnText:{color:"#fff",textAlign:"center"}
+    marginBottom: 15,
+  },
 
-})
+  logoEmoji: {
+    fontSize: 42,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#111827",
+    textAlign: "center",
+  },
+
+  subtitle: {
+    fontSize: 15,
+    color: "#6B7280",
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 22,
+    marginBottom: 35,
+  },
+
+  inputContainer: {
+    marginBottom: 18,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+  },
+
+  input: {
+    backgroundColor: "#FFFFFF",
+
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+
+    borderRadius: 16,
+
+    paddingHorizontal: 18,
+    paddingVertical: 15,
+
+    fontSize: 15,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+
+    elevation: 2,
+  },
+
+  btn: {
+    backgroundColor: "#4F46E5",
+
+    paddingVertical: 16,
+
+    borderRadius: 18,
+
+    alignItems: "center",
+
+    marginTop: 10,
+
+    shadowColor: "#4F46E5",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+
+    elevation: 8,
+  },
+
+  btnText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  registerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 24,
+  },
+
+  registerText: {
+    color: "#6B7280",
+    fontSize: 14,
+  },
+
+  registerLink: {
+    color: "#4F46E5",
+    fontWeight: "700",
+    marginLeft: 4,
+  },
+
+  footer: {
+    marginTop: 40,
+    alignItems: "center",
+  },
+
+  footerText: {
+    fontSize: 12,
+    color: "#9CA3AF",
+  },
+});

@@ -33,21 +33,44 @@ const OptionCard: React.FC<Props> = ({ title, image, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     marginVertical: 12,
-    padding: 15,
-    borderRadius: 18,
+    paddingVertical: 20,
+    paddingHorizontal: 18,
+    borderRadius: 24,
+
     alignItems: "center",
-    elevation: 5,
+    justifyContent: "center",
+
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+
+    elevation: 8,
+
+    minHeight: 160,
   },
+
   image: {
-    width: 70,
-    height: 70,
-    marginBottom: 8,
+    width: 80,
+    height: 80,
+    resizeMode: "contain",
+    marginBottom: 14,
   },
+
   title: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#1F2937",
+    textAlign: "center",
+    letterSpacing: 0.4,
   },
 });
 
