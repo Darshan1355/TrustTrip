@@ -16,7 +16,7 @@ import {
 const { width } = Dimensions.get("window");
 const CARD_SIZE = width / 2 - 30;
 
-const API_URL = "http://10.17.96.190:5000";
+const API_URL = "http://10.103.226.190:5000";
 
 type Equipment = {
   id: number;
@@ -61,7 +61,9 @@ export default function EquipmentScreen() {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#1e88e5" />
-        <Text>Loading Equipment...</Text>
+        <Text style={styles.loaderText}>
+          Loading Equipment...
+        </Text>
       </View>
     );
   }
@@ -70,6 +72,17 @@ export default function EquipmentScreen() {
     <View style={styles.container}>
       {/* TITLE */}
       <Text style={styles.title}>Safety Equipment Rental</Text>
+
+      <View style={styles.heroCard}>
+        <Text style={styles.heroTitle}>
+          Safety Equipment Rentals
+        </Text>
+
+        <Text style={styles.heroSubtitle}>
+          Rent helmets, safety kits, emergency tools,
+          and protective equipment for your journey.
+        </Text>
+      </View>
 
       {/* SEARCH BAR */}
       <TextInput
@@ -88,36 +101,78 @@ export default function EquipmentScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.itemContainer}
-            onPress={() =>
-              navigation.navigate("EquipmentDetails", { item })
-            }
-          >
-            <View style={styles.card}>
-              <Image
-                source={{
-                  uri: `${API_URL}/static/equipment/${item.image}`,
-                }}
-                style={styles.image}
-              />
-            </View>
-
-            <Text style={styles.name}>{item.name}</Text>
-
-            <Text style={styles.price}>₹{item.price}</Text>
-
-            <Text
-              style={[
-                styles.status,
-                item.status === "available"
-                  ? styles.available
-                  : styles.unavailable,
-              ]}
+         <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.itemContainer}
+              onPress={() =>
+                navigation.navigate("EquipmentDetails", { item })
+              }
             >
-              {item.status}
-            </Text>
-          </TouchableOpacity>
+              
+              <View style={styles.card}>
+                 <View
+                    style={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: "#4F46E5",
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 12,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 10,
+                        fontWeight: "700",
+                      }}
+                    >
+                      RENT
+                    </Text>
+                  </View>
+
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{
+                      uri: `${API_URL}/static/equipment/${item.image}`,
+                    }}
+                    style={styles.image}
+                  />
+                </View>
+
+                <Text style={styles.name}>
+                  {item.name}
+                </Text>
+
+                <Text style={styles.price}>
+                  ₹{item.price}
+                </Text>
+
+                <View
+                  style={[
+                    styles.statusBadge,
+                    item.status === "available"
+                      ? styles.availableBadge
+                      : styles.unavailableBadge,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.status,
+                      item.status === "available"
+                        ? styles.available
+                        : styles.unavailable,
+                    ]}
+                  >
+                    {item.status === "available"
+                      ? "✓ Available"
+                      : "✕ Unavailable"}
+                  </Text>
+                </View>
+
+              </View>
+            </TouchableOpacity>
         )}
       />
     </View>
@@ -127,76 +182,173 @@ export default function EquipmentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 15,
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+
+  heroCard: {
+    backgroundColor: "#ae00e8",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+  },
+
+  heroTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+
+  heroSubtitle: {
+    color: "#E0E7FF",
+    fontSize: 14,
+    lineHeight: 22,
   },
 
   searchBar: {
-    backgroundColor: "#ffffff",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-    elevation: 3,
+    backgroundColor: "#FFFFFF",
+
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+
+    borderRadius: 18,
+
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+
+    fontSize: 15,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 4,
+
+    marginBottom: 22,
   },
 
   itemContainer: {
-    alignItems: "center",
-    marginBottom: 25,
+    width: CARD_SIZE,
+    marginBottom: 18,
   },
 
   card: {
-    width: CARD_SIZE,
-    height: CARD_SIZE,
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+
+    borderRadius: 10,
+
+    padding: 15,
+
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+
+    elevation: 6,
+  },
+
+  imageContainer: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+
+    backgroundColor: "#EEF2FF",
+
     justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
+
+    marginBottom: 12,
   },
 
   image: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     resizeMode: "contain",
   },
 
   name: {
-    marginTop: 8,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
     textAlign: "center",
+    marginBottom: 6,
   },
 
   price: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#1e88e5",
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#4F46E5",
+    marginBottom: 8,
+  },
+
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+
+  availableBadge: {
+    backgroundColor: "#DCFCE7",
+  },
+
+  unavailableBadge: {
+    backgroundColor: "#FEE2E2",
   },
 
   status: {
-    marginTop: 2,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 
   available: {
-    color: "green",
+    color: "#15803D",
   },
 
   unavailable: {
-    color: "red",
+    color: "#DC2626",
   },
 
   loader: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#F8FAFC",
+  },
+
+  loaderText: {
+    marginTop: 12,
+    color: "#6B7280",
+    fontSize: 14,
+  },
+
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 60,
+  },
+
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#6B7280",
+    marginTop: 12,
   },
 });
