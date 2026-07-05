@@ -1,5 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation, loginUser }: any) {
@@ -58,9 +71,20 @@ JSON.stringify(err)
 }
 
 
-return(
+return (
 
-<View style={styles.container}>
+<KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
+
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+<ScrollView
+    contentContainerStyle={styles.container}
+    keyboardShouldPersistTaps="handled"
+>
+
     <View style={styles.logoContainer}>
   <View style={styles.logoCircle}>
     <Text style={styles.logoEmoji}>🌍</Text>
@@ -80,24 +104,34 @@ return(
 <View style={styles.inputContainer}>
   <Text style={styles.label}>Username</Text>
 
-  <TextInput
+<TextInput
     placeholder="Enter your username"
-    style={styles.input}
-    onChangeText={setUsername}
     placeholderTextColor="#9CA3AF"
-  />
+    value={username}
+    onChangeText={setUsername}
+    style={styles.input}
+    autoCapitalize="none"
+    autoCorrect={false}
+    selectionColor="#4F46E5"
+    returnKeyType="next"
+/>
 </View>
 
 <View style={styles.inputContainer}>
   <Text style={styles.label}>Password</Text>
 
-  <TextInput
+<TextInput
     placeholder="Enter your password"
-    style={styles.input}
-    secureTextEntry
-    onChangeText={setPassword}
     placeholderTextColor="#9CA3AF"
-  />
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry
+    style={styles.input}
+    autoCapitalize="none"
+    autoCorrect={false}
+    selectionColor="#4F46E5"
+    returnKeyType="done"
+/>
 </View>
 
 
@@ -106,13 +140,29 @@ return(
 <Text style={styles.btnText}>Login</Text>
 </TouchableOpacity>
 
-<Text onPress={()=>navigation.navigate("Register")}>
+<View style={styles.registerContainer}>
+
+<Text style={styles.registerText}>
+Don't have an account?
+</Text>
+
+<TouchableOpacity
+    onPress={() => navigation.navigate("Register")}
+>
+<Text style={styles.registerLink}>
 Create Account
 </Text>
+</TouchableOpacity>
 
 </View>
 
-)
+</ScrollView>
+
+</TouchableWithoutFeedback>
+
+</KeyboardAvoidingView>
+
+);
 
 }
 

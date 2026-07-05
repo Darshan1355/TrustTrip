@@ -147,7 +147,7 @@ export default function HomeScreen() {
 
         {/* ADS SECTION */}
         <Text style={styles.subHeading}>
-          Travel Updates
+          Offers
         </Text>
 
         <ScrollView

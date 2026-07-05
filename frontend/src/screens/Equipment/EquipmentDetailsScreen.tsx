@@ -111,7 +111,7 @@ const handleOrder = async () => {
     return;
   }
 
-  const response = await fetch("http://10.103.226.190:5000/place-order", {
+  const response = await fetch("http://10.215.185.190:5000/place-order", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -139,10 +139,7 @@ const handleOrder = async () => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: item.image }}
-          style={styles.image}
-        />
+
       </View>
 
       <Text style={styles.name}>{item.name}</Text>

@@ -15,13 +15,32 @@ import StarRating from "react-native-star-rating-widget";
 const API_URL = "http://10.215.185.190:5000";
 
 type Guide = {
-g_id: number
-name: string
-languages: string
-status: string
-profile_photo: string
-rating: number
-}
+  g_id: number;
+  name: string;
+  languages: string;
+  status: string;
+  rating: number;
+};
+
+const guideImages = [
+
+"https://randomuser.me/api/portraits/men/11.jpg",
+
+"https://randomuser.me/api/portraits/women/21.jpg",
+
+"https://randomuser.me/api/portraits/men/31.jpg",
+
+"https://randomuser.me/api/portraits/women/41.jpg",
+
+"https://randomuser.me/api/portraits/men/51.jpg",
+
+"https://randomuser.me/api/portraits/women/61.jpg",
+
+"https://randomuser.me/api/portraits/men/71.jpg",
+
+"https://randomuser.me/api/portraits/women/81.jpg",
+
+];
 
 export default function GuideScreen(){
 
@@ -105,90 +124,110 @@ fetchGuides()
 
 }
 
-const renderGuide = ({item}:{item:Guide})=>(
+const renderGuide=({item}:{item:Guide})=>(
 
-<View style={styles.card}>
+<TouchableOpacity
+activeOpacity={0.9}
+style={styles.card}
+>
 
-  <View style={styles.imageContainer}>
-    <Image
-      source={{
-        uri: `${API_URL}/static/guides/${item.profile_photo}`
-      }}
-      style={styles.image}
-    />
-  </View>
+<Image
+source={{
+uri:guideImages[item.g_id % guideImages.length]
+}}
+style={styles.image}
+/>
 
-  <Text style={styles.name}>
-    {item.name}
-  </Text>
+<Text style={styles.name}>
+{item.name}
+</Text>
 
-  <View style={styles.infoRow}>
-    <Text style={styles.label}>Languages</Text>
-    <Text style={styles.value}>{item.languages}</Text>
-  </View>
+<Text style={styles.language}>
+🌍 {item.languages}
+</Text>
 
-  <View style={styles.infoRow}>
-    <Text style={styles.label}>Status</Text>
-    <Text
-      style={[
-        styles.value,
-        {
-          color:
-            item.status === "Available"
-              ? "#10B981"
-              : "#EF4444",
-        },
-      ]}
-    >
-      {item.status}
-    </Text>
-  </View>
+<View
+style={[
+styles.status,
+{
+backgroundColor:
+item.status==="Available"
+?"#DCFCE7"
+:"#FEE2E2"
+}
+]}
+>
 
-  <View style={styles.ratingBox}>
-    <Text style={styles.rating}>
-      ⭐ {item.rating?.toFixed(1)} Average Rating
-    </Text>
-  </View>
-
-  <TouchableOpacity
-    style={styles.selectBtn}
-    onPress={() => selectGuide(item.g_id)}
-  >
-    <Text style={styles.btnText}>
-      Select Guide
-    </Text>
-  </TouchableOpacity>
-
-  {selectedGuide === item.g_id && (
-    <View style={styles.ratingSection}>
-
-      <View style={styles.selectedBadge}>
-        <Text style={styles.selectedText}>
-          ✓ Guide Selected
-        </Text>
-      </View>
-
-      <StarRating
-        rating={rating}
-        onChange={setRating}
-        maxStars={5}
-      />
-
-      <TouchableOpacity
-        style={styles.rateBtn}
-        onPress={() => submitRating(item.g_id)}
-      >
-        <Text style={styles.btnText}>
-          Submit Rating
-        </Text>
-      </TouchableOpacity>
-
-    </View>
-  )}
+<Text
+style={{
+color:
+item.status==="Available"
+?"#16A34A"
+:"#DC2626",
+fontWeight:"700",
+fontSize:12
+}}
+>
+{item.status}
+</Text>
 
 </View>
 
+<View style={styles.ratingBox}>
+
+<Text style={styles.ratingText}>
+⭐ {item.rating.toFixed(1)}
+</Text>
+
+</View>
+
+<TouchableOpacity
+style={styles.selectBtn}
+onPress={()=>selectGuide(item.g_id)}
+>
+
+<Text style={styles.btnText}>
+Book Guide
+</Text>
+
+</TouchableOpacity>
+
+{
+selectedGuide===item.g_id&&(
+
+<>
+
+<StarRating
+rating={rating}
+onChange={setRating}
+starSize={22}
+/>
+
+<TouchableOpacity
+style={styles.rateBtn}
+onPress={()=>submitRating(item.g_id)}
+>
+
+<Text style={styles.btnText}>
+Rate
+</Text>
+
+</TouchableOpacity>
+
+</>
+
 )
+
+}
+
+</TouchableOpacity>
+
+)
+
+    
+  
+
+
 
 return(
 
@@ -225,11 +264,20 @@ return(
             </Text>
         </View>
 
-        <FlatList
-        data={guides}
-        keyExtractor={(item)=>item.g_id.toString()}
-        renderItem={renderGuide}
-        />
+         <FlatList
+  data={guides}
+  keyExtractor={(item) => item.g_id.toString()}
+  renderItem={renderGuide}
+  numColumns={2}
+  columnWrapperStyle={{
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+  }}
+  contentContainerStyle={{
+    paddingBottom: 30,
+  }}
+  showsVerticalScrollIndicator={false}
+/>
 
 </View>
 
@@ -238,137 +286,141 @@ return(
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
     paddingTop: 10,
   },
 
-  card: {
-    backgroundColor: "#FFFFFF",
-
-    marginHorizontal: 16,
-    marginVertical: 10,
-
+  heroCard: {
+    backgroundColor: "#4F46E5",
+    margin: 16,
     borderRadius: 24,
-
-    padding: 18,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-
-    elevation: 8,
+    padding: 22,
+    elevation: 6,
   },
 
-  image: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-  },
-
-  imageContainer: {
-    alignItems: "center",
-    marginBottom: 14,
-  },
-
-  name: {
-    fontSize: 22,
+  heroTitle: {
+    fontSize: 26,
     fontWeight: "800",
-    color: "#111827",
-    textAlign: "center",
+    color: "#FFFFFF",
     marginBottom: 10,
   },
 
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-  },
-
-  label: {
-    color: "#6B7280",
-    fontSize: 14,
-    width: 90,
-    fontWeight: "600",
-  },
-
-  value: {
-    color: "#111827",
+  heroText: {
+    color: "#E0E7FF",
     fontSize: 15,
-    fontWeight: "500",
-    flex: 1,
+    lineHeight: 24,
+  },
+
+  card: {
+    backgroundColor: "#FFFFFF",
+    width: "48%",
+    borderRadius: 22,
+    padding: 16,
+    marginBottom: 18,
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    elevation: 6,
+  },
+
+  image: {
+    width: 75,
+    height: 75,
+    borderRadius: 40,
+    marginBottom: 12,
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#222",
+    textAlign: "center",
+  },
+
+  language: {
+    marginTop: 5,
+    fontSize: 13,
+    color: "#666",
+    textAlign: "center",
+  },
+
+  status: {
+    marginTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
   },
 
   ratingBox: {
-    marginTop: 15,
-    backgroundColor: "#FEF3C7",
-    paddingVertical: 10,
-    borderRadius: 14,
-    alignItems: "center",
+    marginTop: 10,
+    backgroundColor: "#FFF8E1",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
   },
 
-  rating: {
-    color: "#92400E",
-    fontSize: 16,
+  ratingText: {
+    color: "#FF9800",
     fontWeight: "700",
+    fontSize: 14,
   },
 
   selectBtn: {
     backgroundColor: "#4F46E5",
-
-    paddingVertical: 14,
-    borderRadius: 16,
-
-    marginTop: 18,
+    width: "100%",
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 15,
 
     shadowColor: "#4F46E5",
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 4,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
-
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   rateBtn: {
     backgroundColor: "#10B981",
-
-    paddingVertical: 14,
-    borderRadius: 16,
-
-    marginTop: 15,
+    width: "100%",
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 12,
 
     shadowColor: "#10B981",
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 4,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
-
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   btnText: {
     color: "#FFFFFF",
     textAlign: "center",
     fontWeight: "700",
-    fontSize: 15,
-    letterSpacing: 0.3,
+    fontSize: 14,
   },
 
   ratingSection: {
-    marginTop: 18,
-    paddingTop: 15,
+    width: "100%",
+    marginTop: 15,
     borderTopWidth: 1,
     borderTopColor: "#E5E7EB",
+    paddingTop: 15,
   },
 
   selectedBadge: {
@@ -377,7 +429,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
-    marginTop: 12,
+    marginBottom: 12,
   },
 
   selectedText: {
@@ -385,4 +437,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 13,
   },
+
 });

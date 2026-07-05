@@ -4,118 +4,321 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 
-export default function ChatBotScreen() {
-  const [message, setMessage] = useState("");
-  const [chat, setChat] = useState<any[]>([
-    { id: "1", text: "Hi 👋 I'm your language Assistant! How can I help you?", sender: "bot" },
-  ]);
+const API_URL = "http://10.215.185.190:5000";
 
-  const sendMessage = () => {
-    if (!message.trim()) return;
+export default function LanguageScreen() {
 
-    const userMsg = { id: Date.now().toString(), text: message, sender: "user" };
-    setChat((prev) => [...prev, userMsg]);
+  const [text, setText] = useState("");
 
-    let botReply = "Sorry, I didn't understand that.";
+  const [displayText, setDisplayText] = useState("");
 
-    if (message.toLowerCase().includes("hotel")) {
-      botReply = "You can check nearby hotels in the Guide section.";
-    } else if (message.toLowerCase().includes("police")) {
-      botReply = "For police help, go to SOS Emergency and tap Police.";
-    } else if (message.toLowerCase().includes("transport")) {
-      botReply = "You can use local taxi apps or check bus stations nearby.";
-    } else if (message.toLowerCase().includes("safe")) {
-      botReply = "Avoid isolated areas at night and use Women Safety feature.";
+  const [sourceLanguage, setSourceLanguage] = useState("auto");
+
+  const [targetLanguage, setTargetLanguage] = useState("hi");
+
+  const [loading, setLoading] = useState(false);
+
+  // Typing Animation
+  const typeWriter = (sentence: string) => {
+
+    setDisplayText("");
+
+    const words = sentence.split(" ");
+
+    let current = "";
+
+    words.forEach((word, index) => {
+
+      setTimeout(() => {
+
+        current += word + " ";
+
+        setDisplayText(current);
+
+      }, index * 120);
+
+    });
+
+  };
+
+  const translate = async () => {
+
+    if (text.trim() === "") return;
+
+    setLoading(true);
+
+    setDisplayText("");
+
+    try {
+
+      const response = await fetch(`${API_URL}/translate`, {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+
+          text: text,
+
+          source: sourceLanguage,
+
+          target: targetLanguage,
+
+        }),
+
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (data.success) {
+
+        typeWriter(data.translation);
+
+      } else {
+
+        setDisplayText("Translation Failed");
+
+      }
+
+    } catch (error) {
+
+      setLoading(false);
+
+      console.log(error);
+
+      setDisplayText("Unable to connect to server.");
+
     }
 
-    const botMsg = {
-      id: Date.now().toString() + "bot",
-      text: botReply,
-      sender: "bot",
-    };
-
-    setTimeout(() => {
-      setChat((prev) => [...prev, botMsg]);
-    }, 600);
-
-    setMessage("");
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={chat}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.message,
-              item.sender === "user" ? styles.userMsg : styles.botMsg,
-            ]}
-          >
-            <Text style={styles.text}>{item.text}</Text>
-          </View>
-        )}
+
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
+
+      <Text style={styles.heading}>
+        🌍 Travel Language Translator
+      </Text>
+
+      <Text style={styles.subHeading}>
+        Translate any language instantly
+      </Text>
+
+      <Text style={styles.label}>
+        From
+      </Text>
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={sourceLanguage}
+          onValueChange={(itemValue) =>
+            setSourceLanguage(itemValue)
+          }>
+
+          <Picker.Item label="Auto Detect" value="auto" />
+          <Picker.Item label="English" value="en" />
+          <Picker.Item label="Hindi" value="hi" />
+          <Picker.Item label="Marathi" value="mr" />
+          <Picker.Item label="French" value="fr" />
+          <Picker.Item label="German" value="de" />
+          <Picker.Item label="Japanese" value="ja" />
+          <Picker.Item label="Spanish" value="es" />
+
+        </Picker>
+      </View>
+
+      <Text style={styles.label}>
+        To
+      </Text>
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={targetLanguage}
+          onValueChange={(itemValue) =>
+            setTargetLanguage(itemValue)
+          }>
+
+          <Picker.Item label="English" value="en" />
+          <Picker.Item label="Hindi" value="hi" />
+          <Picker.Item label="Marathi" value="mr" />
+          <Picker.Item label="French" value="fr" />
+          <Picker.Item label="German" value="de" />
+          <Picker.Item label="Japanese" value="ja" />
+          <Picker.Item label="Spanish" value="es" />
+
+        </Picker>
+      </View>
+
+      <TextInput
+        multiline
+        placeholder="Type your text here..."
+        value={text}
+        onChangeText={setText}
+        style={styles.input}
       />
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Ask something..."
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-        />
-        <TouchableOpacity style={styles.sendBtn} onPress={sendMessage}>
-          <Text style={{ color: "#fff" }}>Send</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          loading && { opacity: 0.7 }
+        ]}
+        disabled={loading}
+        onPress={translate}
+      >
+
+        <Text style={styles.buttonText}>
+          {loading ? "Translating..." : "Translate"}
+        </Text>
+
+      </TouchableOpacity>
+
+      <Text style={styles.outputTitle}>
+        Translation
+      </Text>
+
+      <View style={styles.outputBox}>
+
+        {loading ? (
+
+          <View style={styles.loaderContainer}>
+
+            <ActivityIndicator
+              size="large"
+              color="#1e88e5"
+            />
+
+            <Text style={styles.loadingText}>
+              Translating...
+            </Text>
+
+          </View>
+
+        ) : (
+
+          <Text style={styles.output}>
+            {displayText}
+          </Text>
+
+        )}
+
       </View>
-    </View>
+
+    </ScrollView>
+
   );
+
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f4f6f8", padding: 10, marginBottom: 30},
 
-  message: {
-    padding: 12,
-    borderRadius: 12,
-    marginVertical: 5,
-    maxWidth: "75%",
+  container:{
+    flex:1,
+    backgroundColor:"#F4F6F8",
+    padding:20,
   },
 
-  userMsg: {
-    backgroundColor: "#1e88e5",
-    alignSelf: "flex-end",
+  heading:{
+    fontSize:28,
+    fontWeight:"bold",
+    textAlign:"center",
+    marginTop:20,
+    color:"#1e88e5",
   },
 
-  botMsg: {
-    backgroundColor: "#e0e0e0",
-    alignSelf: "flex-start",
-    marginTop: 40,
+  subHeading:{
+    textAlign:"center",
+    color:"#666",
+    marginTop:5,
+    marginBottom:25,
+    fontSize:15,
   },
 
-  text: { color: "#000" },
-
-  inputContainer: {
-    flexDirection: "row",
-    marginTop: 10,
+  label:{
+    fontSize:16,
+    fontWeight:"700",
+    marginBottom:8,
+    marginTop:10,
   },
 
-  input: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 10,
+  pickerContainer:{
+    backgroundColor:"#fff",
+    borderRadius:12,
+    marginBottom:15,
+    elevation:3,
   },
 
-  sendBtn: {
-    backgroundColor: "#1e88e5",
-    padding: 12,
-    marginLeft: 10,
-    borderRadius: 10,
+  input:{
+    backgroundColor:"#fff",
+    minHeight:170,
+    borderRadius:15,
+    padding:18,
+    fontSize:17,
+    textAlignVertical:"top",
+    elevation:3,
   },
+
+  button:{
+    backgroundColor:"#1e88e5",
+    marginTop:25,
+    padding:16,
+    borderRadius:15,
+    alignItems:"center",
+    elevation:4,
+  },
+
+  buttonText:{
+    color:"#fff",
+    fontSize:18,
+    fontWeight:"bold",
+  },
+
+  outputTitle:{
+    fontSize:20,
+    fontWeight:"bold",
+    marginTop:30,
+    marginBottom:10,
+  },
+
+  outputBox:{
+    backgroundColor:"#fff",
+    borderRadius:15,
+    minHeight:180,
+    padding:20,
+    elevation:3,
+    marginBottom:40,
+  },
+
+  output:{
+    fontSize:19,
+    lineHeight:32,
+    color:"#222",
+  },
+
+  loaderContainer:{
+    justifyContent:"center",
+    alignItems:"center",
+    flex:1,
+    minHeight:140,
+  },
+
+  loadingText:{
+    marginTop:15,
+    fontSize:16,
+    color:"#666",
+  },
+
 });

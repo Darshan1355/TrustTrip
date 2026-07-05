@@ -8,6 +8,11 @@ import {
   FlatList,
   Alert,
 } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -100,8 +105,17 @@ export default function ComplaintScreen() {
     return "";
   };
 
+
+
   return (
-    <View style={styles.container}>
+   <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
+<ScrollView
+    keyboardShouldPersistTaps="handled"
+    contentContainerStyle={styles.container}
+>
       <Text style={styles.title}>Report an Issue</Text>
       <View style={styles.headerCard}>
           <Text style={styles.headerTitle}>
@@ -160,8 +174,9 @@ export default function ComplaintScreen() {
           Submit Complaint
         </Text>
       </TouchableOpacity>
-    </View>
-  );
+</ScrollView>
+</KeyboardAvoidingView>
+);
 }
 
 const styles = StyleSheet.create({

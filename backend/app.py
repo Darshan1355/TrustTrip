@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 from database import get_db_connection
 from flask_cors import CORS
+from deep_translator import GoogleTranslator
 
 
 app = Flask(__name__)
 CORS(app)
+    
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -167,7 +170,7 @@ def get_guides():
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT g_id, name, languages, status, profile_photo, rating
+        SELECT g_id, name, languages, status, rating
         FROM guide
     """
 
@@ -274,14 +277,21 @@ def place_order():
 
 @app.route("/user-orders/<int:user_id>", methods=["GET"])
 def get_user_orders(user_id):
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT eo.id, eo.quantity, eo.total_price, eo.status, eo.created_at,
-               se.name, se.image
+        SELECT
+            eo.id,
+            eo.quantity,
+            eo.total_price,
+            eo.status,
+            eo.created_at,
+            se.name
         FROM equipment_orders eo
-        JOIN safety_equipment se ON eo.equipment_id = se.id
+        JOIN safety_equipment se
+            ON eo.equipment_id = se.id
         WHERE eo.user_id = %s
         ORDER BY eo.created_at DESC
     """
@@ -294,12 +304,17 @@ def get_user_orders(user_id):
 
     return jsonify(orders)
 
+
 @app.route("/equipment", methods=["GET"])
 def get_all_equipment():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM safety_equipment")
+    cursor.execute("""
+      SELECT id,name,price,status
+       FROM safety_equipment  
+     """)
+
     data = cursor.fetchall()
 
     cursor.close()
@@ -313,7 +328,12 @@ def get_equipment_by_id(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM safety_equipment WHERE id=%s", (id,))
+    cursor.execute("""
+        SELECT id, name, price, status
+        FROM safety_equipment
+        WHERE id = %s
+    """, (id,))
+
     item = cursor.fetchone()
 
     cursor.close()
@@ -323,6 +343,35 @@ def get_equipment_by_id(id):
         return jsonify(item)
     else:
         return jsonify({"error": "Not found"}), 404
+    
+@app.route("/translate", methods=["POST"])
+def translate():
+
+    try:
+        data = request.get_json()
+
+        text = data.get("text")
+        source = data.get("source", "auto")
+        target = data.get("target")
+
+        if not text:
+            return jsonify({"error": "Text is required"}), 400
+
+        translated = GoogleTranslator(
+            source=source,
+            target=target
+        ).translate(text)
+
+        return jsonify({
+            "success": True,
+            "translation": translated
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True)

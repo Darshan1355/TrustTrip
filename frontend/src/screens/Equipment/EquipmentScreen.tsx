@@ -19,12 +19,32 @@ const CARD_SIZE = width / 2 - 30;
 
 const API_URL = "http://10.215.185.190:5000";
 
+const equipmentImages = [
+
+"https://cdn-icons-png.flaticon.com/512/3062/3062634.png", // Helmet
+
+"https://cdn-icons-png.flaticon.com/512/2965/2965567.png", // First Aid Kit
+
+"https://cdn-icons-png.flaticon.com/512/1048/1048941.png", // Torch
+
+"https://cdn-icons-png.flaticon.com/512/2972/2972185.png", // Backpack
+
+"https://cdn-icons-png.flaticon.com/512/3659/3659898.png", // Life Jacket
+
+"https://cdn-icons-png.flaticon.com/512/3135/3135715.png", // Medical Kit
+
+"https://cdn-icons-png.flaticon.com/512/4149/4149675.png", // Whistle
+
+"https://cdn-icons-png.flaticon.com/512/942/942748.png", // Emergency Kit
+
+];
+
+
 
 type Equipment = {
   id: number;
   name: string;
   price: number;
-  image: string;
   status: string;
 };
 
@@ -135,12 +155,12 @@ export default function EquipmentScreen() {
                   </View>
 
                 <View style={styles.imageContainer}>
-                  <Image
-                    source={{
-                      uri: `${API_URL}/static/equipment/${item.image}`,
-                    }}
-                    style={styles.image}
-                  />
+                    <Image
+                      source={{
+                        uri: equipmentImages[item.id % equipmentImages.length],
+                      }}
+                      style={styles.image}
+                    />
                 </View>
 
                 <Text style={styles.name}>
