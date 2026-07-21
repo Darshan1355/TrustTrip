@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
+import api from "../config/api";
 
 export default function RegisterScreen({ navigation }: any) {
 
@@ -13,12 +25,7 @@ const [emergency_contact,setEmergencyContact]=useState("")
 
 const register = async () => {
 
-const res = await fetch("http://10.103.226.190:5000/register",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
+const res = await api.post("/register", {
 username,
 password,
 name,
@@ -26,10 +33,9 @@ mob,
 address,
 nationality,
 emergency_contact
-})
-})
+});
 
-const data = await res.json()
+const data = res.data;
 
 if(data.success){
 alert("Registration successful")
@@ -40,13 +46,22 @@ alert("Registration failed")
 
 }
 
-return(
 
-<ScrollView
-  style={styles.container}
-  showsVerticalScrollIndicator={false}
+
+return (
+
+<KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
 >
 
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+<ScrollView
+    contentContainerStyle={styles.container}
+    keyboardShouldPersistTaps="handled"
+    showsVerticalScrollIndicator={false}
+>
     <View style={styles.header}>
 
   <View style={styles.logoCircle}>
@@ -156,9 +171,23 @@ return(
 <Text style={styles.btnText}>Register</Text>
 </TouchableOpacity>
 
-<Text onPress={()=>navigation.navigate("Login")}>
-Already have account? Login
+<View style={styles.loginContainer}>
+
+<Text style={styles.loginText}>
+Already have an account?
 </Text>
+
+<TouchableOpacity
+onPress={()=>navigation.navigate("Login")}
+>
+
+<Text style={styles.loginLink}>
+Login
+</Text>
+
+</TouchableOpacity>
+
+</View>
 
 <View style={styles.footer}>
   <Text style={styles.footerText}>
@@ -168,17 +197,26 @@ Already have account? Login
 
 </ScrollView>
 
-)
+</TouchableWithoutFeedback>
+
+</KeyboardAvoidingView>
+
+);
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+container: {
+    flexGrow: 1,
+
     backgroundColor: "#F8FAFC",
+
     paddingHorizontal: 24,
-    paddingTop: 50,
-  },
+
+    paddingTop: 40,
+
+    paddingBottom: 60,
+},
 
   header: {
     alignItems: "center",
@@ -262,13 +300,14 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: "#4F46E5",
 
-    paddingVertical: 16,
+    paddingVertical: 17,
 
     borderRadius: 18,
 
     alignItems: "center",
 
-    marginTop: 10,
+    marginTop: 15,
+    marginBottom: 15,
 
     shadowColor: "#4F46E5",
     shadowOffset: {
@@ -279,7 +318,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
 
     elevation: 8,
-  },
+},
 
   btnText: {
     color: "#FFFFFF",
