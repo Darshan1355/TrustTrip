@@ -1,383 +1,419 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-View,
-Text,
-StyleSheet,
-Image,
-TouchableOpacity,
-TextInput,
-ScrollView,
-Alert,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+  Platform,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import api from "../config/api";
+
+// ---------------------------------------------------------------------------
+// TrustTrip design tokens (from DESIGN.md)
+// ---------------------------------------------------------------------------
+const colors = {
+  surface: "#f8f9ff",
+  surfaceContainerLowest: "#ffffff",
+  surfaceContainerLow: "#eff4ff",
+  surfaceContainer: "#e5eeff",
+  surfaceContainerHigh: "#dce9ff",
+  onSurface: "#0b1c30",
+  onSurfaceVariant: "#444651",
+  outlineVariant: "#c5c5d3",
+  primary: "#00236f",
+  onPrimary: "#ffffff",
+  primaryContainer: "#1e3a8a",
+  secondary: "#006c49",
+  onSecondary: "#ffffff",
+  secondaryContainer: "#6cf8bb",
+  onSecondaryContainer: "#00714d",
+  error: "#ba1a1a",
+  onError: "#ffffff",
+  errorContainer: "#ffdad6",
+};
+
+const typography = {
+  headlineLg: { fontFamily: "Inter", fontSize: 24, fontWeight: "700" as const, letterSpacing: -0.2 },
+  headlineMd: { fontFamily: "Inter", fontSize: 20, fontWeight: "700" as const, letterSpacing: -0.1 },
+  bodyMd: { fontFamily: "Inter", fontSize: 14, fontWeight: "400" as const, lineHeight: 20 },
+  labelMd: { fontFamily: "Inter", fontSize: 14, fontWeight: "600" as const },
+  labelSm: { fontFamily: "Inter", fontSize: 11, fontWeight: "700" as const, letterSpacing: 0.4 },
+};
+
+const spacing = { base: 4, xs: 8, sm: 16, md: 24, lg: 40, marginMobile: 20 };
+const radius = { sm: 4, DEFAULT: 8, md: 12, lg: 16, xl: 24, full: 9999 };
+
+const ambientShadow = {
+  shadowColor: colors.primary,
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.08,
+  shadowRadius: 20,
+  elevation: 4,
+};
+
+const TABS: { key: string; label: string; icon: keyof typeof Ionicons.glyphMap; screen: string }[] = [
+  { key: "Home", label: "Home", icon: "home-outline", screen: "Home" },
+  { key: "Explore", label: "Explore", icon: "compass-outline", screen: "Guide" },
+  { key: "Dashboard", label: "Dashboard", icon: "grid-outline", screen: "Dashboard" },
+  { key: "Profile", label: "Profile", icon: "person", screen: "Profile" },
+];
 
 export default function ProfileScreen({ logoutUser, navigation }: any) {
+  // --- Backend logic (unchanged) --------------------------------------------
+  const [isEditing, setIsEditing] = useState(false);
+  const [complaintCount, setComplaintCount] = useState(0);
 
-const [isEditing, setIsEditing] = useState(false)
-const [complaintCount, setComplaintCount] = useState(0)
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [mob, setMobile] = useState("");
+  const [address, setAddress] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [emergency_contact, setEmergency] = useState("");
 
-const [username,setUsername] = useState("")
-const [name, setName] = useState("")
-const [mob, setMobile] = useState("")
-const [address, setAddress] = useState("")
-const [nationality, setNationality] = useState("")
-const [emergency_contact, setEmergency] = useState("")
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-const API_URL = "http://10.215.185.190:5000"
+  // ---------------- FETCH PROFILE ----------------
+  const fetchProfile = async () => {
+    try {
+      const user = await AsyncStorage.getItem("user");
 
-useEffect(()=>{
-fetchProfile()
-},[])
+      if (!user) {
+        Alert.alert("Error", "User data not found");
+        return;
+      }
+
+      const parsedUser = JSON.parse(user);
+      const uname = parsedUser.username;
+
+      setUsername(uname);
+
+      const response = await api.get(`/profile/${uname}`);
+
+      const data = response.data;
+
+      setName(data.name || "");
+      setMobile(data.mob || "");
+      setAddress(data.address || "");
+      setNationality(data.nationality || "");
+      setEmergency(data.emergency_contact || "");
+
+      const complaintRes = await api.get(`/user-complaints/${uname}`);
+
+      const complaintData = complaintRes.data;
+      setComplaintCount(complaintData.length);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Unable to load profile");
+    }
+  };
+
+  // ---------------- SAVE PROFILE ----------------
+  const handleSave = async () => {
+    try {
+      const response = await api.put(`/profile/${username}`, {
+        name,
+        mob,
+        address,
+        nationality,
+        emergency_contact,
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        Alert.alert("Success", "Profile Updated");
+        setIsEditing(false);
+      } else {
+        Alert.alert("Error", "Update failed");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile");
+    }
+  };
+
+  // ---------------- LOGOUT ----------------
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("user");
+    logoutUser();
+  };
+  // --- End backend logic -----------------------------------------------------
+
+  const avatarUri = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  const fields: { label: string; value: string; onChange: (v: string) => void; keyboardType?: "numeric" }[] = [
+    { label: "Full Name", value: name, onChange: setName },
+    { label: "Nationality", value: nationality, onChange: setNationality },
+    { label: "Mobile Number", value: mob, onChange: setMobile, keyboardType: "numeric" },
+    { label: "Emergency Contact", value: emergency_contact, onChange: setEmergency, keyboardType: "numeric" },
+    { label: "Residential Address", value: address, onChange: setAddress },
+  ];
+
+  return (
+    <View style={styles.screen}>
 
 
-// ---------------- FETCH PROFILE ----------------
-const fetchProfile = async () => {
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        {/* HERO */}
+        <LinearGradient
+          colors={[colors.primary, colors.primaryContainer]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroCard}
+        >
+          <View style={styles.avatarRing}>
+            <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          </View>
 
-try{
+          <Text style={styles.username}>{name || username}</Text>
 
-const user = await AsyncStorage.getItem("user")
+          <View style={styles.verifiedRow}>
+            <Ionicons name="shield-checkmark" size={14} color={colors.secondaryContainer} />
+            <Text style={styles.verifiedText}>Verified Global Citizen</Text>
+          </View>
+        </LinearGradient>
 
-if (!user) {
-Alert.alert("Error", "User data not found")
-return
+        {/* STATS — overlaps the hero/content seam */}
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{complaintCount}</Text>
+            <Text style={styles.statLabel}>COMPLAINTS</Text>
+          </View>
+
+          <View style={[styles.statCard, styles.statCardHighlight]}>
+            <Ionicons
+              name="checkmark-circle"
+              size={18}
+              color={colors.onSecondaryContainer}
+              style={{ marginBottom: 2 }}
+            />
+            <Text style={[styles.statNumber, styles.statNumberHighlight]}>100%</Text>
+            <Text style={[styles.statLabel, styles.statLabelHighlight]}>VERIFIED</Text>
+          </View>
+
+          <View style={styles.statCard}>
+            <View style={styles.activeDotRow}>
+              <View style={styles.activeDot} />
+              <Text style={styles.statNumber}>Active</Text>
+            </View>
+            <Text style={styles.statLabel}>STATUS</Text>
+          </View>
+        </View>
+
+        {/* PERSONAL INFO CARD */}
+        <View style={styles.card}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.sectionTitle}>Personal Details</Text>
+
+            <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
+              <Ionicons
+                name={isEditing ? "close-outline" : "pencil-outline"}
+                size={14}
+                color={colors.primary}
+              />
+              <Text style={styles.editText}>{isEditing ? "Cancel" : "Edit"}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {fields.map((field, index) => (
+            <View key={field.label} style={[styles.fieldRow, index === 0 && { marginTop: spacing.sm }]}>
+              <Text style={styles.label}>{field.label}</Text>
+              {isEditing ? (
+                <TextInput
+                  style={styles.input}
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  keyboardType={field.keyboardType}
+                  placeholderTextColor={colors.onSurfaceVariant}
+                />
+              ) : (
+                <Text style={styles.value}>{field.value || "—"}</Text>
+              )}
+            </View>
+          ))}
+
+          {isEditing && (
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+              <Text style={styles.saveText}>Save Changes</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* DASHBOARD CARDS */}
+        <TouchableOpacity
+          style={[styles.dashboardCard, styles.dashboardCardPrimary]}
+          onPress={() => navigation.navigate("MyComplaints")}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="shield" size={24} color={colors.onPrimary} style={{ marginBottom: spacing.xs }} />
+          <Text style={styles.dashboardTitlePrimary}>My Complaints</Text>
+          <Text style={styles.dashboardSubPrimary}>Track and manage your submitted safety reports.</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.dashboardCard}
+          onPress={() => navigation.navigate("MyOrders")}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="bag-handle-outline" size={24} color={colors.primary} style={{ marginBottom: spacing.xs }} />
+          <Text style={styles.dashboardTitle}>My Orders</Text>
+          <Text style={styles.dashboardSub}>Access details for your purchased travel security packs.</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.dashboardCard}
+          onPress={() => navigation.navigate("Guide")}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="book-outline" size={24} color={colors.primary} style={{ marginBottom: spacing.xs }} />
+          <Text style={styles.dashboardTitle}>Guides</Text>
+          <Text style={styles.dashboardSub}>Learn how to stay safe in various travel scenarios.</Text>
+        </TouchableOpacity>
+
+        {/* LOGOUT */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
+          <Ionicons name="log-out-outline" size={18} color={colors.onError} />
+          <Text style={styles.logoutText}>Logout from TrustTrip</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.footerText}>Version 2.4.0 · Secured by GlobalVault™</Text>
+
+        <View style={{ height: spacing.lg }} />
+      </ScrollView>
+
+
+    </View>
+  );
 }
-
-const parsedUser = JSON.parse(user)
-const uname = parsedUser.username
-
-setUsername(uname)
-
-const response = await fetch(`${API_URL}/profile/${uname}`)
-
-const text = await response.text()
-
-
-
-const data = JSON.parse(text)
-
-setName(data.name || "")
-setMobile(data.mob || "")
-setAddress(data.address || "")
-setNationality(data.nationality || "")
-setEmergency(data.emergency_contact || "")
-
-const complaintRes = await fetch(`${API_URL}/user-complaints/${uname}`)
-
-const complaintText = await complaintRes.text()
-
-
-
-const complaintData = JSON.parse(complaintText)
-setComplaintCount(complaintData.length)
-
-}catch(error){
-console.log(error)
-Alert.alert("Error","Unable to load profile")
-}
-
-}
-
-
-// ---------------- SAVE PROFILE ----------------
-const handleSave = async () => {
-
-try{
-
-const response = await fetch(`${API_URL}/profile/${username}`,{
-method:"PUT",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-name,
-mob,
-address,
-nationality,
-emergency_contact
-})
-})
-
-if(response.ok){
-Alert.alert("Success","Profile Updated")
-setIsEditing(false)
-}else{
-Alert.alert("Error","Update failed")
-}
-
-}catch(error){
-Alert.alert("Error","Failed to update profile")
-}
-
-}
-
-
-// ---------------- LOGOUT ----------------
-const handleLogout = async () => {
-
-await AsyncStorage.removeItem("user")
-logoutUser()
-
-}
-
-
-return(
-
-<ScrollView contentContainerStyle={styles.container}>
-
-{/* HEADER */}
-
-<View style={styles.header}>
-
-<Image
-source={{
-uri:"https://cdn-icons-png.flaticon.com/512/149/149071.png"
-}}
-style={styles.avatar}
-/>
-
-<Text style={styles.username}>{username}</Text>
-
-</View>
-
-
-
-
-{/* PERSONAL INFO CARD */}
-
-<View style={styles.card}>
-
-<View style={styles.rowBetween}>
-<Text style={styles.sectionTitle}>Personal Information</Text>
-
-<TouchableOpacity onPress={()=>setIsEditing(!isEditing)}>
-<Text style={styles.editText}>{isEditing?"Cancel":"Edit"}</Text>
-</TouchableOpacity>
-
-</View>
-
-
-<Text style={styles.label}>Name</Text>
-{isEditing?(
-<TextInput style={styles.input} value={name} onChangeText={setName}/>
-):(
-<Text style={styles.value}>{name}</Text>
-)}
-
-
-<Text style={styles.label}>Mobile</Text>
-{isEditing?(
-<TextInput
-style={styles.input}
-value={mob}
-onChangeText={setMobile}
-keyboardType="numeric"
-/>
-):(
-<Text style={styles.value}>{mob}</Text>
-)}
-
-
-<Text style={styles.label}>Address</Text>
-{isEditing?(
-<TextInput style={styles.input} value={address} onChangeText={setAddress}/>
-):(
-<Text style={styles.value}>{address}</Text>
-)}
-
-
-<Text style={styles.label}>Nationality</Text>
-{isEditing?(
-<TextInput style={styles.input} value={nationality} onChangeText={setNationality}/>
-):(
-<Text style={styles.value}>{nationality}</Text>
-)}
-
-
-<Text style={styles.label}>Emergency Contact</Text>
-{isEditing?(
-<TextInput
-style={styles.input}
-value={emergency_contact}
-onChangeText={setEmergency}
-keyboardType="numeric"
-/>
-):(
-<Text style={styles.value}>{emergency_contact}</Text>
-)}
-
-
-{isEditing && (
-<TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-<Text style={styles.saveText}>Save Changes</Text>
-</TouchableOpacity>
-)}
-
-</View>
-
-
-<View style={styles.profileStatsContainer}>
-
-  <View style={styles.statCard}>
-    <Text style={styles.statNumber}>
-      {complaintCount}
-    </Text>
-    <Text style={styles.statLabel}>
-      Complaints
-    </Text>
-  </View>
-
-  <View style={styles.statCard}>
-    <Text style={styles.statNumber}>
-      100%
-    </Text>
-    <Text style={styles.statLabel}>
-      Verified
-    </Text>
-  </View>
-
-  <View style={styles.statCard}>
-    <Text style={styles.statNumber}>
-      ✓
-    </Text>
-    <Text style={styles.statLabel}>
-      Active
-    </Text>
-  </View>
-
-</View>
-
-{/* DASHBOARD CARDS */}
-
-<View style={styles.dashboardRow}>
-
-<TouchableOpacity
-style={styles.dashboardCard}
-onPress={()=>navigation.navigate("MyComplaints")}
->
-
-<Text style={styles.dashboardTitle}>Complaints</Text>
-<Text style={styles.dashboardNumber}>{complaintCount}</Text>
-<Text style={styles.dashboardSub}>View Details</Text>
-
-</TouchableOpacity>
-
-<TouchableOpacity
-  style={styles.dashboardCard}
-  onPress={() => navigation.navigate("MyOrders")}
->
-  <Text style={styles.sectionTitle}>My Orders</Text>
-  <Text style={styles.statText}>View your equipment orders</Text>
-</TouchableOpacity>
-<TouchableOpacity
-style={styles.dashboardCard}
-onPress={()=>navigation.navigate("Guide")}
->
-
-<Text style={styles.dashboardTitle}>Guides</Text>
-<Text style={styles.dashboardNumber}>Explore</Text>
-<Text style={styles.dashboardSub}>Book a Guide</Text>
-
-</TouchableOpacity>
-
-</View>
-
-
-{/* LOGOUT */}
-
-<TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-<Text style={styles.logoutText}>Logout</Text>
-</TouchableOpacity>
-
-</ScrollView>
-
-)
-
-}
-
-
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#F8FAFC",
-    paddingBottom: 40,
+  screen: {
+    flex: 1,
+    backgroundColor: colors.surface,
   },
 
-  header: {
+  container: {
+    paddingBottom: spacing.lg,
+  },
+
+
+  // --- Hero ------------------------------------------------------------------
+  heroCard: {
     alignItems: "center",
-    marginBottom: 25,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.marginMobile,
+    borderBottomLeftRadius: radius.xl + spacing.sm,
+    borderBottomRightRadius: radius.xl + spacing.sm,
+  },
+
+  avatarRing: {
+    width: 112,
+    height: 112,
+    borderRadius: radius.full,
+    borderWidth: 3,
+    borderColor: "rgba(255,255,255,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.sm,
   },
 
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-
-    borderWidth: 4,
-    borderColor: "#EEF2FF",
-
-    marginBottom: 12,
+    width: 100,
+    height: 100,
+    borderRadius: radius.full,
+    borderWidth: 2,
+    borderColor: colors.surfaceContainerLowest,
   },
 
   username: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#111827",
+    ...typography.headlineLg,
+    color: colors.onPrimary,
   },
 
-  card: {
-    backgroundColor: "#FFFFFF",
-
-    padding: 20,
-
-    borderRadius: 24,
-
-    marginBottom: 18,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-
-    elevation: 8,
+  verifiedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.base,
+    marginTop: spacing.base,
   },
 
-  sectionTitle: {
-    fontSize: 19,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  label: {
+  verifiedText: {
+    ...typography.bodyMd,
     fontSize: 13,
-    fontWeight: "600",
-    color: "#6B7280",
-    marginTop: 14,
-    marginBottom: 4,
+    color: "#c7d5ff",
   },
 
-  value: {
-    fontSize: 15,
-    color: "#111827",
-    fontWeight: "500",
+  // --- Stats pills (overlap hero seam) ---------------------------------------
+  statsRow: {
+    flexDirection: "row",
+    marginHorizontal: spacing.marginMobile,
+    marginTop: -radius.xl,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
   },
 
-  input: {
-    backgroundColor: "#F9FAFB",
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+    ...ambientShadow,
+  },
 
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+  statCardHighlight: {
+    backgroundColor: colors.secondaryContainer,
+    shadowColor: colors.secondary,
+  },
 
-    borderRadius: 14,
+  statNumber: {
+    ...typography.headlineMd,
+    fontSize: 18,
+    color: colors.primary,
+  },
 
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+  statNumberHighlight: {
+    color: colors.onSecondaryContainer,
+  },
 
-    fontSize: 15,
-    color: "#111827",
+  statLabel: {
+    ...typography.labelSm,
+    color: colors.onSurfaceVariant,
+    marginTop: 2,
+  },
+
+  statLabelHighlight: {
+    color: colors.onSecondaryContainer,
+  },
+
+  activeDotRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: radius.full,
+    backgroundColor: colors.secondary,
+  },
+
+  // --- Personal info card ------------------------------------------------------
+  card: {
+    backgroundColor: colors.surfaceContainerLowest,
+    marginHorizontal: spacing.marginMobile,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    marginBottom: spacing.sm,
+    ...ambientShadow,
   },
 
   rowBetween: {
@@ -386,161 +422,132 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  sectionTitle: {
+    ...typography.headlineMd,
+    fontSize: 18,
+    color: colors.onSurface,
+  },
+
+  editButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
   editText: {
-    color: "#4F46E5",
-    fontWeight: "700",
-    fontSize: 14,
+    ...typography.labelMd,
+    color: colors.primary,
+  },
+
+  fieldRow: {
+    marginTop: spacing.sm,
+  },
+
+  label: {
+    ...typography.bodyMd,
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    marginBottom: spacing.base,
+  },
+
+  value: {
+    ...typography.labelMd,
+    fontSize: 15,
+    color: colors.onSurface,
+  },
+
+  input: {
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    fontSize: 15,
+    color: colors.onSurface,
   },
 
   saveBtn: {
-    backgroundColor: "#4F46E5",
-
-    paddingVertical: 14,
-
-    borderRadius: 16,
-
-    marginTop: 20,
-
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.DEFAULT,
     alignItems: "center",
-
-    shadowColor: "#4F46E5",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-
-    elevation: 5,
+    marginTop: spacing.md,
   },
 
   saveText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
+    ...typography.labelMd,
     fontSize: 15,
+    color: colors.onPrimary,
   },
 
-  dashboardRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-  },
-
+  // --- Dashboard cards -----------------------------------------------------------
   dashboardCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surfaceContainerLowest,
+    marginHorizontal: spacing.marginMobile,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    marginBottom: spacing.sm,
+    ...ambientShadow,
+  },
 
-    width: "100%",
-
-    paddingVertical: 22,
-    paddingHorizontal: 15,
-
-    borderRadius: 22,
-
-    alignItems: "center",
-
-    marginBottom: 15,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-
-    elevation: 6,
+  dashboardCardPrimary: {
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.2,
   },
 
   dashboardTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  dashboardNumber: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#4F46E5",
-    marginTop: 6,
+    ...typography.headlineMd,
+    fontSize: 17,
+    color: colors.onSurface,
   },
 
   dashboardSub: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginTop: 5,
-    textAlign: "center",
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
+    marginTop: 2,
   },
 
-  statText: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginTop: 6,
-    textAlign: "center",
+  dashboardTitlePrimary: {
+    ...typography.headlineMd,
+    fontSize: 17,
+    color: colors.onPrimary,
   },
 
+  dashboardSubPrimary: {
+    ...typography.bodyMd,
+    color: "#c7d5ff",
+    marginTop: 2,
+  },
+
+  // --- Logout ------------------------------------------------------------------
   logoutBtn: {
-    backgroundColor: "#DC2626",
-
-    paddingVertical: 16,
-
-    borderRadius: 18,
-
+    flexDirection: "row",
     alignItems: "center",
-
-    marginTop: 10,
-
-    shadowColor: "#DC2626",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-
-    elevation: 5,
+    justifyContent: "center",
+    gap: spacing.xs,
+    backgroundColor: colors.error,
+    marginHorizontal: spacing.marginMobile,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.DEFAULT,
+    marginTop: spacing.xs,
   },
 
   logoutText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
-    letterSpacing: 0.5,
+    ...typography.labelMd,
+    fontSize: 15,
+    color: colors.onError,
+    letterSpacing: 0.3,
   },
 
-  profileStatsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
+  footerText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    color: colors.onSurfaceVariant,
+    textAlign: "center",
+    marginTop: spacing.sm,
+    letterSpacing: 0.2,
   },
 
-  statCard: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 5,
-    padding: 16,
-    borderRadius: 18,
-    alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-
-    elevation: 4,
-  },
-
-  statNumber: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#4F46E5",
-  },
-
-  statLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginTop: 4,
-  },
 });

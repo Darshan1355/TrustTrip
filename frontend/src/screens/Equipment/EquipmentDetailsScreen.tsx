@@ -6,15 +6,27 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  SafeAreaView,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../../config/api";
 
 
-const API_URL = "http://10.215.185.190:5000";
-
+const equipmentImages = [
+  "https://cdn-icons-png.flaticon.com/512/3062/3062634.png", // Helmet
+  "https://cdn-icons-png.flaticon.com/512/2965/2965567.png", // First Aid Kit
+  "https://cdn-icons-png.flaticon.com/512/1048/1048941.png", // Torch
+  "https://cdn-icons-png.flaticon.com/512/2972/2972185.png", // Backpack
+  "https://cdn-icons-png.flaticon.com/512/3659/3659898.png", // Life Jacket
+  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", // Medical Kit
+  "https://cdn-icons-png.flaticon.com/512/4149/4149675.png", // Whistle
+  "https://cdn-icons-png.flaticon.com/512/942/942748.png", // Emergency Kit
+];
 
 export default function EquipmentDetailsScreen({ route }: any) {
   const { item } = route.params;
@@ -24,6 +36,9 @@ export default function EquipmentDetailsScreen({ route }: any) {
   const [deliveryLocation, setDeliveryLocation] = useState<any>(null);
   const [showMap, setShowMap] = useState(false);
   const [pricePerItem, setPricePerItem] = useState(0);
+  const [loadingPrice, setLoadingPrice] = useState(false);
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [gettingLocation, setGettingLocation] = useState(false);
 
   const mapRef = useRef<MapView>(null);
 
@@ -33,13 +48,18 @@ export default function EquipmentDetailsScreen({ route }: any) {
   }, []);
 
   const fetchPrice = async () => {
+    if (!item || !item.id) return;
+    setLoadingPrice(true);
     try {
-      const res = await fetch(`${API_URL}/equipment/${item.id}`);
-      const data = await res.json();
-
-      setPricePerItem(data.price || 200);
+      const res = await api.get(`/equipment/${item.id}`);
+      const data = res.data;
+      if (data && typeof data.price !== "undefined") setPricePerItem(Number(data.price));
+      else setPricePerItem(200);
     } catch (error) {
-      console.log(error);
+      console.log("fetchPrice error:", error);
+      setPricePerItem(200);
+    } finally {
+      setLoadingPrice(false);
     }
   };
 
@@ -47,22 +67,30 @@ export default function EquipmentDetailsScreen({ route }: any) {
 
   // 📍 Get location
   const getLiveLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission Denied");
-      return;
+    setGettingLocation(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Denied", "Please allow location access in settings.");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setUserLocation(location.coords);
+
+      // fake delivery location (start a little offset)
+      setDeliveryLocation({
+        latitude: location.coords.latitude + 0.01,
+        longitude: location.coords.longitude + 0.01,
+      });
+
+      setShowMap(true);
+    } catch (err) {
+      console.log("getLiveLocation error:", err);
+      Alert.alert("Error", "Unable to get location");
+    } finally {
+      setGettingLocation(false);
     }
-
-    const location = await Location.getCurrentPositionAsync({});
-    setUserLocation(location.coords);
-
-    // fake delivery location
-    setDeliveryLocation({
-      latitude: location.coords.latitude + 0.01,
-      longitude: location.coords.longitude + 0.01,
-    });
-
-    setShowMap(true);
   };
 
   // 🚚 Simulate delivery movement
@@ -91,59 +119,64 @@ export default function EquipmentDetailsScreen({ route }: any) {
 
 
 const handleOrder = async () => {
-
   if (!userLocation) {
     Alert.alert("Please share live location first.");
     return;
   }
 
   const user = await AsyncStorage.getItem("user");
-
   if (!user) {
     Alert.alert("User not logged in");
     return;
   }
 
   const parsedUser = JSON.parse(user);
-
   if (!parsedUser.id) {
     Alert.alert("User ID missing — login issue");
     return;
   }
 
-  const response = await fetch("http://10.215.185.190:5000/place-order", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: parsedUser.id,   // ✅ MUST WORK NOW
+  setPlacingOrder(true);
+  try {
+    const response = await api.post("/place-order", {
+      user_id: parsedUser.id,
       equipment_id: Number(item.id),
       quantity: quantity,
       total_price: totalPrice,
       latitude: userLocation.latitude,
       longitude: userLocation.longitude,
-    }),
-  });
+    });
 
-  const data = await response.json();
-
-
-  if (response.ok) {
-    Alert.alert("Success", data.message);
-  } else {
-    Alert.alert("Error", data.error);
+    const data = response.data;
+    if (response.status >= 200 && response.status < 300) {
+      Alert.alert("Success", data.message || "Order placed successfully");
+    } else {
+      Alert.alert("Error", data.error || "Order failed");
+    }
+  } catch (err) {
+    console.log("placeOrder error:", err);
+    Alert.alert("Error", "Failed to place order. Please try again.");
+  } finally {
+    setPlacingOrder(false);
   }
 };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: styles.container.backgroundColor }}>
+      <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.imageContainer}>
-
+        <Image
+          source={{
+            uri: equipmentImages[item.id % equipmentImages.length],
+          }}
+          style={styles.image}
+        />
       </View>
 
       <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.price}>₹{pricePerItem} / item</Text>
+      <Text style={styles.price}>
+        {loadingPrice ? <ActivityIndicator size="small" color="#4F46E5" /> : `₹${pricePerItem} / item`}
+      </Text>
       <Text style={styles.total}>Total: ₹{totalPrice}</Text>
       <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>
@@ -157,10 +190,9 @@ const handleOrder = async () => {
       </View>
 
       {/* Quantity */}
-        <Text style={styles.quantityTitle}>
-          Select Quantity
-        </Text>
-      <View style={styles.quantityRow}>
+      <View style={styles.quantityCard}>
+        <Text style={styles.quantityTitle}>Select Quantity</Text>
+        <View style={styles.quantityRow}>
         <TouchableOpacity
           style={styles.qtyBtn}
           onPress={() => quantity > 1 && setQuantity(quantity - 1)}
@@ -177,49 +209,62 @@ const handleOrder = async () => {
           <Text style={styles.qtyText}>+</Text>
         </TouchableOpacity>
       </View>
+      </View>
 
       {/* Location */}
-      <TouchableOpacity style={styles.locationBtn} onPress={getLiveLocation}>
-        <Text style={{ color: "#fff" }}>
-          {userLocation ? "Location Added ✓" : "Get Live Location"}
-        </Text>
+      <TouchableOpacity style={[styles.locationBtn, gettingLocation && { opacity: 0.7 }]} onPress={getLiveLocation} disabled={gettingLocation}>
+        {gettingLocation ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ color: "#fff" }}>{userLocation ? "Location Added ✓" : "Get Live Location"}</Text>
+        )}
       </TouchableOpacity>
 
       {/* Map */}
       {showMap && userLocation && (
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            latitudeDelta: 0.02,
-            longitudeDelta: 0.02,
-          }}
-        >
-          <Marker coordinate={userLocation} title="You" />
+        <View style={styles.mapContainer}>
+          <Text style={styles.mapTitle}>Delivery Tracker</Text>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            initialRegion={{
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }}
+          >
+            <Marker coordinate={userLocation} title="You" />
 
-          {deliveryLocation && (
-            <Marker coordinate={deliveryLocation} title="Delivery" />
-          )}
-        </MapView>
+            {deliveryLocation && <Marker coordinate={deliveryLocation} title="Delivery" />}
+          </MapView>
+        </View>
       )}
 
-      {/* Order */}
-      <TouchableOpacity style={styles.orderBtn} onPress={handleOrder}>
-        <Text style={{ color: "#fff", fontWeight: "bold" }}>
-          Place Order
-        </Text>
-      </TouchableOpacity>
-    </View>
+      {/* spacer so last content isn't hidden behind footer */}
+      <View style={{ height: 24 }} />
+      </ScrollView>
+
+      {/* Footer - Place Order button stays fixed at bottom and is always clickable */}
+      <View style={styles.footer}> 
+        <TouchableOpacity style={[styles.orderBtn, placingOrder && { opacity: 0.7 }]} onPress={handleOrder} disabled={placingOrder}>
+          {placingOrder ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.orderText}>Place Order</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
     padding: 20,
+    paddingBottom: 140,
   },
 
   imageContainer: {
@@ -422,5 +467,16 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 5,
     lineHeight: 20,
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 12,
+    backgroundColor: "rgba(255,255,255,0.98)",
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+    alignItems: "center",
   },
 });

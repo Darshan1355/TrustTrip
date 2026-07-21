@@ -34,9 +34,10 @@ def create_order(data):
             quantity,
             total_price,
             latitude,
-            longitude
+            longitude,
+            created_at
         )
-        VALUES (%s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, NOW())
     """, (
         data["user_id"],
         data["equipment_id"],
@@ -63,8 +64,7 @@ def fetch_user_orders(user_id):
                eo.total_price,
                eo.status,
                eo.created_at,
-               se.name,
-               se.image
+               se.name
         FROM equipment_orders eo
         JOIN safety_equipment se
         ON eo.equipment_id = se.id

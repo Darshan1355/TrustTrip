@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import api from "../config/api";
 
 export default function RegisterScreen({ navigation }: any) {
 
@@ -24,12 +25,7 @@ const [emergency_contact,setEmergencyContact]=useState("")
 
 const register = async () => {
 
-const res = await fetch("http://10.215.185.190:5000/register",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
+const res = await api.post("/register", {
 username,
 password,
 name,
@@ -37,10 +33,9 @@ mob,
 address,
 nationality,
 emergency_contact
-})
-})
+});
 
-const data = await res.json()
+const data = res.data;
 
 if(data.success){
 alert("Registration successful")

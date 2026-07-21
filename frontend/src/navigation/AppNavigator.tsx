@@ -25,6 +25,8 @@ import SOSDetailScreen from "../screens/SOS/SOSDetailScreen";
 import ChatBotScreen from "../screens/ChatBotScreen";
 import MyComplaintsScreen from "../screens/complaints/MyComplaintsScreen";
 import MyOrdersScreen from "../screens/Equipment/MyOrdersScreen";
+import DashboardScreen from "../screens/DashboardScreen";
+import DebugAxiosErrorsScreen from "../screens/DebugAxiosErrorsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +79,7 @@ export default function AppNavigator() {
               {(props) => <ProfileScreen {...props} logoutUser={logoutUser} />}
             </Stack.Screen>
             <Stack.Screen name="MyComplaints" component={MyComplaintsScreen} />
+            <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
@@ -90,6 +93,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Equipment" component={EquipmentScreen} />
             <Stack.Screen name="EquipmentDetails" component={EquipmentDetailsScreen} />
             <Stack.Screen name="ChatBot" component={ChatBotScreen} />
+            <Stack.Screen name="DebugAxiosErrors" component={DebugAxiosErrorsScreen} />
           </>
 
         ) : (

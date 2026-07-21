@@ -12,61 +12,43 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../config/api";
 
 export default function LoginScreen({ navigation, loginUser }: any) {
 
 const [username, setUsername] = useState("")
 const [password, setPassword] = useState("")
+const [loading, setLoading] = useState(false)
 
 
 const login = async () => {
+  if (!username.trim() || !password) {
+    Alert.alert("Missing fields", "Please enter username and password.");
+    return;
+  }
 
-try {
+  setLoading(true)
+  try {
+    const res = await api.post("/login", { username, password });
+    const data = res.data;
 
-const res = await fetch("http://10.215.185.190:5000/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({username,password})
-})
-
-console.log("STATUS:", res.status)
-
-const text = await res.text()
-
-console.log("RAW RESPONSE:", text)
-
-const data = JSON.parse(text)
-
-if (data.success) {
-
-await AsyncStorage.setItem(
-"user",
-JSON.stringify(data.user)
-)
-
-loginUser(data.user)
-
-} else {
-
-Alert.alert(
-"Login Failed",
-"Invalid username or password"
-)
-
-}
-
-} catch (err) {
-
-console.log("LOGIN ERROR:", err)
-
-Alert.alert(
-"Error",
-JSON.stringify(err)
-)
-
-}
+    if (data && data.success) {
+      await AsyncStorage.setItem("user", JSON.stringify(data.user));
+      loginUser(data.user);
+    } else {
+      const msg = (data && data.message) || "Invalid username or password";
+      Alert.alert("Login Failed", msg);
+    }
+  } catch (err: any) {
+    console.log("LOGIN ERROR:", err);
+    const serverMsg = err?.response?.data || err?.message || String(err);
+    Alert.alert("Error", typeof serverMsg === "string" ? serverMsg : JSON.stringify(serverMsg));
+  } finally {
+    setLoading(false)
+  }
 
 }
 
@@ -136,9 +118,13 @@ return (
 
 
 
-<TouchableOpacity style={styles.btn} onPress={login}>
-<Text style={styles.btnText}>Login</Text>
-</TouchableOpacity>
+      <TouchableOpacity style={[styles.btn, loading && { opacity: 0.7 }]} onPress={login} disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.btnText}>Login</Text>
+        )}
+      </TouchableOpacity>
 
 <View style={styles.registerContainer}>
 
