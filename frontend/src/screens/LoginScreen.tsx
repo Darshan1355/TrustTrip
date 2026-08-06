@@ -15,6 +15,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import Feather from "react-native-vector-icons/Feather";
 import api from "../config/api";
 
 export default function LoginScreen({ navigation, loginUser }: any) {
@@ -22,6 +24,7 @@ export default function LoginScreen({ navigation, loginUser }: any) {
 const [username, setUsername] = useState("")
 const [password, setPassword] = useState("")
 const [loading, setLoading] = useState(false)
+const [showPassword, setShowPassword] = useState(false)
 
 
 const login = async () => {
@@ -62,87 +65,105 @@ return (
 
 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
-<ScrollView
-    contentContainerStyle={styles.container}
-    keyboardShouldPersistTaps="handled"
->
+<View style={{ flex: 1, backgroundColor: "#1E2875" }}>
 
-    <View style={styles.logoContainer}>
-  <View style={styles.logoCircle}>
-    <Text style={styles.logoEmoji}>🌍</Text>
-  </View>
+  {/* Top gradient header with logo */}
+  <LinearGradient
+    colors={["#1E2875", "#2D3A9E", "#3B4FCB"]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.header}
+  >
+    <View style={styles.logoCircle}>
+      <Text style={styles.logoEmoji}>🌍</Text>
+    </View>
 
-  <Text style={styles.title}>
-    TrustTrip
-  </Text>
+    <Text style={styles.title}>TrustTrip</Text>
 
-  <Text style={styles.subtitle}>
-    Safe • Smart • Trusted Travel Experience
-  </Text>
-</View>
+    <Text style={styles.subtitle}>SAFE • SMART • TRUSTED TRAVEL</Text>
+  </LinearGradient>
 
-<Text style={styles.title}>TrustTrip Login</Text>
+  {/* White rounded card */}
+  <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      style={styles.card}
+  >
 
-<View style={styles.inputContainer}>
-  <Text style={styles.label}>Username</Text>
+    <Text style={styles.welcomeTitle}>Welcome Back</Text>
+    <Text style={styles.welcomeSubtitle}>
+      Sign in to access your secure travel dashboard.
+    </Text>
 
-<TextInput
-    placeholder="Enter your username"
-    placeholderTextColor="#9CA3AF"
-    value={username}
-    onChangeText={setUsername}
-    style={styles.input}
-    autoCapitalize="none"
-    autoCorrect={false}
-    selectionColor="#4F46E5"
-    returnKeyType="next"
-/>
-</View>
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>Username</Text>
 
-<View style={styles.inputContainer}>
-  <Text style={styles.label}>Password</Text>
+      <View style={styles.inputWrapper}>
+        <Feather name="user" size={18} color="#6B7280" style={styles.inputIcon} />
+        <TextInput
+            placeholder="Enter your username"
+            placeholderTextColor="#9CA3AF"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            selectionColor="#4F46E5"
+            returnKeyType="next"
+        />
+      </View>
+    </View>
 
-<TextInput
-    placeholder="Enter your password"
-    placeholderTextColor="#9CA3AF"
-    value={password}
-    onChangeText={setPassword}
-    secureTextEntry
-    style={styles.input}
-    autoCapitalize="none"
-    autoCorrect={false}
-    selectionColor="#4F46E5"
-    returnKeyType="done"
-/>
-</View>
+    <View style={styles.inputContainer}>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>Password</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+          <Text style={styles.forgotText}>Forgot?</Text>
+        </TouchableOpacity>
+      </View>
 
+      <View style={styles.inputWrapper}>
+        <Feather name="lock" size={18} color="#6B7280" style={styles.inputIcon} />
+        <TextInput
+            placeholder="Enter your password"
+            placeholderTextColor="#9CA3AF"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            selectionColor="#4F46E5"
+            returnKeyType="done"
+        />
+        <TouchableOpacity
+            onPress={() => setShowPassword((prev) => !prev)}
+            style={styles.eyeIcon}
+        >
+          <Feather name={showPassword ? "eye-off" : "eye"} size={18} color="#9CA3AF" />
+        </TouchableOpacity>
+      </View>
+    </View>
 
+    <TouchableOpacity style={[styles.btn, loading && { opacity: 0.7 }]} onPress={login} disabled={loading}>
+      {loading ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <Text style={styles.btnText}>Login</Text>
+      )}
+    </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.btn, loading && { opacity: 0.7 }]} onPress={login} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.btnText}>Login</Text>
-        )}
+    <View style={styles.registerContainer}>
+      <Text style={styles.registerText}>Don't have an account? </Text>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+        <Text style={styles.registerLink}>Create Account</Text>
       </TouchableOpacity>
+    </View>
 
-<View style={styles.registerContainer}>
-
-<Text style={styles.registerText}>
-Don't have an account?
-</Text>
-
-<TouchableOpacity
-    onPress={() => navigation.navigate("Register")}
->
-<Text style={styles.registerLink}>
-Create Account
-</Text>
-</TouchableOpacity>
+  </ScrollView>
 
 </View>
-
-</ScrollView>
 
 </TouchableWithoutFeedback>
 
@@ -153,28 +174,19 @@ Create Account
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    justifyContent: "center",
-    paddingHorizontal: 28,
-  },
-
-  logoContainer: {
+  header: {
+    paddingTop: 70,
+    paddingBottom: 90,
     alignItems: "center",
-    marginBottom: 40,
   },
 
   logoCircle: {
     width: 90,
     height: 90,
     borderRadius: 45,
-
-    backgroundColor: "#EEF2FF",
-
+    backgroundColor: "rgba(255,255,255,0.15)",
     justifyContent: "center",
     alignItems: "center",
-
     marginBottom: 15,
   },
 
@@ -183,44 +195,83 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "800",
-    color: "#111827",
+    color: "#FFFFFF",
     textAlign: "center",
   },
 
   subtitle: {
-    fontSize: 15,
-    color: "#6B7280",
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 1,
+    color: "#C7D2FE",
     textAlign: "center",
     marginTop: 8,
-    lineHeight: 22,
-    marginBottom: 35,
+  },
+
+  card: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    marginTop: -50,
+  },
+
+  container: {
+    paddingHorizontal: 28,
+    paddingTop: 32,
+    paddingBottom: 24,
+  },
+
+  welcomeTitle: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#111827",
+  },
+
+  welcomeSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 6,
+    lineHeight: 20,
+    marginBottom: 28,
   },
 
   inputContainer: {
     marginBottom: 18,
   },
 
+  labelRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
   label: {
     fontSize: 14,
     fontWeight: "600",
     color: "#374151",
-    marginBottom: 8,
   },
 
-  input: {
-    backgroundColor: "#FFFFFF",
+  forgotText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#4F46E5",
+  },
+
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#EEF2FF",
 
     borderWidth: 1,
     borderColor: "#E5E7EB",
 
     borderRadius: 16,
 
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-
-    fontSize: 15,
+    paddingHorizontal: 14,
 
     shadowColor: "#000",
     shadowOffset: {
@@ -233,8 +284,23 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
+  inputIcon: {
+    marginRight: 8,
+  },
+
+  eyeIcon: {
+    padding: 6,
+  },
+
+  input: {
+    flex: 1,
+    paddingVertical: 15,
+    fontSize: 15,
+    color: "#111827",
+  },
+
   btn: {
-    backgroundColor: "#4F46E5",
+    backgroundColor: "#1E2875",
 
     paddingVertical: 16,
 
@@ -244,7 +310,7 @@ const styles = StyleSheet.create({
 
     marginTop: 10,
 
-    shadowColor: "#4F46E5",
+    shadowColor: "#1E2875",
     shadowOffset: {
       width: 0,
       height: 8,

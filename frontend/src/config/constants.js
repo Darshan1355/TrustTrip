@@ -9,9 +9,7 @@ const getEnvValue = (key, fallback) => {
   return value ?? fallback;
 };
 
-const defaultApiBaseUrl = Platform.OS === "android"
-  ? "http://10.0.2.2:5000"
-  : "http://localhost:5000";
+const defaultApiBaseUrl = "http://10.215.185.190:5000";
 
 export const API_BASE_URL = getEnvValue("API_BASE_URL", defaultApiBaseUrl);
 export const APP_NAME = getEnvValue("APP_NAME", "TrustTrip");
