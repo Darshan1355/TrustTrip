@@ -9,6 +9,8 @@ from routes.complaint_routes import complaint_bp
 from routes.guide_routes import guide_bp
 from routes.equipment_routes import equipment_bp
 from routes.translate import translate_bp
+from routes.crowd_routes import crowd_bp
+from routes.device_routes import device_bp
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -21,6 +23,8 @@ app.register_blueprint(complaint_bp)
 app.register_blueprint(guide_bp)
 app.register_blueprint(equipment_bp)
 app.register_blueprint(translate_bp)
+app.register_blueprint(crowd_bp)
+app.register_blueprint(device_bp)
 
 @app.route("/", methods=["GET"])
 def index():

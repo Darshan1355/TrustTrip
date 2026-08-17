@@ -8,7 +8,7 @@
 
 Example:
 
-API_BASE_URL=http://192.168.1.5:5000
+API_BASE_URL=http://10.170.240.190:5000
 
 ## Adding new environment variables
 

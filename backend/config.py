@@ -16,3 +16,6 @@ class Config:
     # Server configuration
     PORT = int(os.environ.get("PORT", 5000))
     DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+    
+    # Expo Push Notifications configuration
+    EXPO_ACCESS_TOKEN = os.environ.get("EXPO_ACCESS_TOKEN", "")

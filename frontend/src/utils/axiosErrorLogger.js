@@ -59,7 +59,9 @@ export function clearErrors() {
 
 export function subscribe(cb) {
   subscribers.add(cb);
-  return () => subscribers.delete(cb);
+  return () => {
+    subscribers.delete(cb);
+  };
 }
 
 export default {
