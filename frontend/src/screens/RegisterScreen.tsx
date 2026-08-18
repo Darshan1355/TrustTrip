@@ -62,138 +62,169 @@ return (
     keyboardShouldPersistTaps="handled"
     showsVerticalScrollIndicator={false}
 >
-    <View style={styles.header}>
 
-  <View style={styles.logoCircle}>
-    <Text style={styles.logoText}>🌍</Text>
+  {/* Hero header */}
+  <View style={styles.hero}>
+    <View style={styles.logoCircle}>
+      <Text style={styles.logoText}>🌍</Text>
+    </View>
+
+    <Text style={styles.heroTitle}>TrustTrip</Text>
+
+    <Text style={styles.heroSubtitle}>
+      Start your journey with confidence
+    </Text>
   </View>
 
-  <Text style={styles.title}>
-    Create Account
-  </Text>
+  {/* Form card */}
+  <View style={styles.formCard}>
 
-  <Text style={styles.subtitle}>
-    Join TrustTrip and travel safer with
-    verified services and emergency support.
-  </Text>
+    <Text style={styles.title}>Create Account</Text>
+    <View style={styles.titleUnderline} />
 
-</View>
+    {/* Identity details */}
+    <Text style={styles.sectionLabel}>IDENTITY DETAILS</Text>
 
-<Text style={styles.title}>Register</Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Full Name</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>👤</Text>
+        <TextInput
+          placeholder="Johnathan Doe"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setName}
+        />
+      </View>
+    </View>
 
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Username
-  </Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Username</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>@</Text>
+        <TextInput
+          placeholder="jdoe_travels"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setUsername}
+        />
+      </View>
+    </View>
 
-  <TextInput
-    placeholder="Choose a username"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setUsername}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Password
-  </Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Password</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>🔒</Text>
+        <TextInput
+          placeholder="••••••••"
+          style={styles.input}
+          secureTextEntry
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setPassword}
+        />
+      </View>
+    </View>
 
-  <TextInput
-    placeholder="Create a password"
-    style={styles.input}
-    secureTextEntry
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setPassword}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Full Name
-  </Text>
+    <View style={styles.divider} />
 
-  <TextInput
-    placeholder="Enter your full name"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setName}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Mobile
-  </Text>
+    {/* Contact info */}
+    <Text style={styles.sectionLabel}>CONTACT INFO</Text>
 
-  <TextInput
-    placeholder="Enter your mobile number"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setMobile}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Address
-  </Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Mobile Number</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>📞</Text>
+        <TextInput
+          placeholder="+1 (555) 000-0000"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          keyboardType="phone-pad"
+          onChangeText={setMobile}
+        />
+      </View>
+    </View>
 
-  <TextInput
-    placeholder="Enter your address"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setAddress}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Nationality
-  </Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Nationality</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>🌐</Text>
+        <TextInput
+          placeholder="Select your country"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setNationality}
+        />
+        <Text style={styles.chevron}>⌄</Text>
+      </View>
+    </View>
 
-  <TextInput
-    placeholder="Enter your nationality"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setNationality}
-  />
-</View>
-<View style={styles.inputGroup}>
-  <Text style={styles.label}>
-    Emergency Contact
-  </Text>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Home Address</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>📍</Text>
+        <TextInput
+          placeholder="Street, City, State, Zip"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setAddress}
+        />
+      </View>
+    </View>
 
-  <TextInput
-    placeholder="Enter emergency contact information"
-    style={styles.input}
-    placeholderTextColor="#9CA3AF"
-    onChangeText={setEmergencyContact}
-  />
-</View>
+    <View style={styles.divider} />
 
-<TouchableOpacity style={styles.btn} onPress={register}>
-<Text style={styles.btnText}>Register</Text>
-</TouchableOpacity>
+    {/* Safety network */}
+    <Text style={styles.sectionLabel}>SAFETY NETWORK</Text>
 
-<View style={styles.loginContainer}>
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>Emergency Contact</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.inputIcon}>🆘</Text>
+        <TextInput
+          placeholder="Name & Phone Number"
+          style={styles.input}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setEmergencyContact}
+        />
+      </View>
+      <Text style={styles.helperText}>
+        This person will be notified only if you trigger an SOS alert.
+      </Text>
+    </View>
 
-<Text style={styles.loginText}>
-Already have an account?
-</Text>
+    <TouchableOpacity style={styles.btn} onPress={register}>
+      <Text style={styles.btnText}>Register</Text>
+      <Text style={styles.btnArrow}>→</Text>
+    </TouchableOpacity>
 
-<TouchableOpacity
-onPress={()=>navigation.navigate("Login")}
->
+    <View style={styles.loginContainer}>
+      <Text style={styles.loginText}>
+        Already have an account?
+      </Text>
 
-<Text style={styles.loginLink}>
-Login
-</Text>
+      <TouchableOpacity
+        onPress={()=>navigation.navigate("Login")}
+      >
+        <Text style={styles.loginLink}>
+          Login
+        </Text>
+      </TouchableOpacity>
+    </View>
 
-</TouchableOpacity>
+    <View style={styles.secureBadge}>
+      <Text style={styles.secureBadgeText}>✅  SECURE &amp; ENCRYPTED</Text>
+    </View>
 
-</View>
+  </View>
 
-<View style={styles.footer}>
-  <Text style={styles.footerText}>
-    🔒 Your information is securely protected
-  </Text>
-</View>
+  <View style={styles.footer}>
+    <Text style={styles.footerText}>
+      By registering, you agree to TrustTrip's Terms of Service{"\n"}
+      and Privacy Policy.{"\n"}
+      Your location and data are never shared without your explicit{"\n"}
+      consent.
+    </Text>
+  </View>
 
 </ScrollView>
 
@@ -206,119 +237,157 @@ Login
 }
 
 const styles = StyleSheet.create({
-container: {
+  container: {
     flexGrow: 1,
-
     backgroundColor: "#F8FAFC",
+    paddingBottom: 30,
+  },
 
-    paddingHorizontal: 24,
-
-    paddingTop: 40,
-
-    paddingBottom: 60,
-},
-
-  header: {
+  /* Hero */
+  hero: {
+    backgroundColor: "#0B1D51",
     alignItems: "center",
-    marginBottom: 25,
+    paddingTop: 70,
+    paddingBottom: 70,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
 
   logoCircle: {
-    width: 85,
-    height: 85,
-    borderRadius: 42.5,
-    backgroundColor: "#EEF2FF",
-
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.08)",
     justifyContent: "center",
     alignItems: "center",
-
-    marginBottom: 15,
+    marginBottom: 14,
   },
 
   logoText: {
-    fontSize: 38,
-  },
-
-  title: {
     fontSize: 30,
+  },
+
+  heroTitle: {
+    fontSize: 24,
     fontWeight: "800",
-    color: "#111827",
+    color: "#FFFFFF",
+    marginBottom: 6,
   },
 
-  subtitle: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginTop: 6,
-    textAlign: "center",
+  heroSubtitle: {
+    fontSize: 13,
+    color: "#C7D2FE",
   },
 
+  /* Form card */
   formCard: {
     backgroundColor: "#FFFFFF",
-
+    marginTop: -32,
+    marginHorizontal: 16,
     borderRadius: 24,
-
-    padding: 20,
+    padding: 22,
 
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
     elevation: 4,
   },
 
+  title: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#111827",
+    textAlign: "center",
+  },
+
+  titleUnderline: {
+    width: 36,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "#16A34A",
+    alignSelf: "center",
+    marginTop: 8,
+    marginBottom: 20,
+  },
+
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#9CA3AF",
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#E5E7EB",
+    marginVertical: 18,
+  },
+
   inputGroup: {
-    marginBottom: 15,
+    marginBottom: 16,
   },
 
   label: {
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#374151",
     marginBottom: 8,
   },
 
-  input: {
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#F9FAFB",
-
     borderWidth: 1,
     borderColor: "#E5E7EB",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+  },
 
-    borderRadius: 16,
-
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-
+  inputIcon: {
     fontSize: 15,
+    marginRight: 10,
+    color: "#9CA3AF",
+  },
 
+  chevron: {
+    fontSize: 16,
+    color: "#9CA3AF",
+    marginLeft: 6,
+  },
+
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 15,
     color: "#111827",
   },
 
+  helperText: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    marginTop: 6,
+  },
+
   btn: {
-    backgroundColor: "#4F46E5",
-
-    paddingVertical: 17,
-
-    borderRadius: 18,
-
+    flexDirection: "row",
+    backgroundColor: "#1B2559",
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 18,
 
-    marginTop: 15,
-    marginBottom: 15,
-
-    shadowColor: "#4F46E5",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
+    shadowColor: "#1B2559",
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
-
     elevation: 8,
-},
+  },
 
   btnText: {
     color: "#FFFFFF",
@@ -326,11 +395,17 @@ container: {
     fontWeight: "700",
   },
 
+  btnArrow: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
+  },
+
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 25,
-    marginBottom: 30,
+    marginBottom: 18,
   },
 
   loginText: {
@@ -344,13 +419,31 @@ container: {
     marginLeft: 5,
   },
 
+  secureBadge: {
+    alignSelf: "center",
+    backgroundColor: "#EEF2FF",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+
+  secureBadgeText: {
+    color: "#166534",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+
   footer: {
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
+    paddingHorizontal: 24,
   },
 
   footerText: {
     color: "#9CA3AF",
-    fontSize: 12,
+    fontSize: 11,
+    textAlign: "center",
+    lineHeight: 16,
   },
 });

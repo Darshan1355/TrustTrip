@@ -4,7 +4,9 @@ from services.guide_service import (
     submit_guide_rating,
     create_guide_booking,
     cancel_guide_booking,
+    get_user_id_by_username
 )
+from services.notification_service import send_notification_to_user
 
 guide_bp = Blueprint("guide", __name__)
 
@@ -37,7 +39,32 @@ def select_guide():
         return jsonify({"error": "Missing username or guide_id"}), 400
 
     try:
-        create_guide_booking(data)
+        # Create booking and get ID
+        booking_id = create_guide_booking(data)
+        
+        # Skip notification if already booked
+        if booking_id is None:
+            return jsonify({"success": True, "message": "Guide already booked"})
+        
+        # Get username from request
+        username = data.get("username")
+        guide_id = data.get("guide_id")
+        
+        # Trigger notification to user
+        if username:
+            user_id = get_user_id_by_username(username)
+            if user_id:
+                notification_data = {
+                    "type": "guide_request",
+                    "guide_id": guide_id,
+                    "screen": "Guide"
+                }
+                send_notification_to_user(
+                    user_id=user_id,
+                    notification_type="guide_requested",
+                    notification_data=notification_data
+                )
+        
         return jsonify({"success": True, "message": "Guide booked successfully"})
     except ValueError as e:
         return jsonify({"error": str(e)}), 409

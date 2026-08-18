@@ -2,12 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import AxiosErrorLogger from '../utils/axiosErrorLogger';
 
+interface AxiosLogEntry {
+  ts: string;
+  type?: string;
+  status?: number;
+  message?: string;
+  data?: unknown;
+  config?: {
+    method?: string;
+    url?: string;
+    params?: unknown;
+    data?: unknown;
+  };
+}
+
 export default function DebugAxiosErrorsScreen() {
-  const [errors, setErrors] = useState(AxiosErrorLogger.getErrors());
+  const [errors, setErrors] = useState<AxiosLogEntry[]>(AxiosErrorLogger.getErrors());
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const unsub = AxiosErrorLogger.subscribe((logs) => setErrors(logs.slice().reverse()));
+    const unsub = AxiosErrorLogger.subscribe((logs: AxiosLogEntry[]) => setErrors(logs.slice().reverse()));
     setErrors(AxiosErrorLogger.getErrors());
     return unsub;
   }, []);
@@ -22,7 +36,7 @@ export default function DebugAxiosErrorsScreen() {
     AxiosErrorLogger.clearErrors();
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: AxiosLogEntry }) => (
     <View style={styles.card}>
       <Text style={styles.ts}>{item.ts}</Text>
       <Text style={styles.type}>{item.type || 'unknown'}</Text>

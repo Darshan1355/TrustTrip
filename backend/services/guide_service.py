@@ -2,6 +2,24 @@ import datetime
 from database import get_db_connection
 
 
+def get_user_id_by_username(username):
+    """Get user_id from username."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("SELECT user_id FROM users WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+        
+        return result["user_id"] if result else None
+    except Exception as e:
+        print(f"Error getting user_id: {e}")
+        return None
+
+
 def fetch_guides(username=None):
     """
     Fetch all guides with their average rating.
@@ -112,6 +130,9 @@ def create_guide_booking(data):
     Create a booking record and flip the guide's status to 'Booked'.
     If the user already has an active booking for this guide, this becomes a no-op.
     Raises an exception if the guide is not available.
+    
+    Returns:
+        int: The booking ID, or None if already booked
     """
     username     = data.get("username")
     guide_id     = data.get("guide_id")
@@ -132,7 +153,7 @@ def create_guide_booking(data):
     if existing_booking:
         cursor.close()
         conn.close()
-        return
+        return None
 
     # Check current guide status before booking (case-insensitive)
     cursor.execute("SELECT status FROM guide WHERE g_id = %s", (guide_id,))
@@ -154,6 +175,8 @@ def create_guide_booking(data):
         VALUES (%s, %s, %s, %s)
     """, (username, guide_id, booking_date, status))
 
+    booking_id = cursor.lastrowid
+
     # Update the guide's public status to "Booked"
     cursor.execute("""
         UPDATE guide
@@ -164,6 +187,8 @@ def create_guide_booking(data):
     conn.commit()
     cursor.close()
     conn.close()
+    
+    return booking_id
 
 
 def cancel_guide_booking(data):

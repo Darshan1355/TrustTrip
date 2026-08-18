@@ -28,74 +28,12 @@ const facilities = [
   },
   {
     id: "3",
-    name: "Safe Waiting",
+    name: "Changing Room",
     image: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
     available: false,
     statusLabel: "FULL",
   },
-  {
-    id: "4",
-    name: "Women Patrol",
-    image: "https://cdn-icons-png.flaticon.com/512/744/744465.png",
-    available: true,
-    statusLabel: "ACTIVE",
-  },
-  {
-    id: "5",
-    name: "Emergency Hub",
-    image: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
-    available: true,
-    statusLabel: "OPEN 24/7",
-  },
-  {
-    id: "6",
-    name: "Sanitary Dispenser",
-    image: "https://cdn-icons-png.flaticon.com/512/854/854878.png",
-    available: true,
-    statusLabel: "STOCKED",
-  },
-  {
-    id: "7",
-    name: "Safe Taxi Stand",
-    image: "https://cdn-icons-png.flaticon.com/512/3097/3097183.png",
-    available: true,
-    statusLabel: "5 MINS WAIT",
-  },
-  {
-    id: "8",
-    name: "High Lighting",
-    image: "https://cdn-icons-png.flaticon.com/512/2933/2933245.png",
-    available: true,
-    statusLabel: "VERIFIED",
-  },
-  {
-    id: "9",
-    name: "Women Helpdesk",
-    image: "https://cdn-icons-png.flaticon.com/512/942/942748.png",
-    available: true,
-    statusLabel: "AVAILABLE",
-  },
-  {
-    id: "10",
-    name: "Verified Stay",
-    image: "https://cdn-icons-png.flaticon.com/512/483/483947.png",
-    available: true,
-    statusLabel: "SAFE LIST",
-  },
-  {
-    id: "11",
-    name: "Escort Service",
-    image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-    available: false,
-    statusLabel: "BUSY",
-  },
-  {
-    id: "12",
-    name: "CCTV camera Monitoring",
-    image: "https://cdn-icons-png.flaticon.com/512/2910/2910762.png",
-    available: true,
-    statusLabel: "ACTIVE",
-  },
+  
 ];
 
 export default function WomenSafetyScreen() {

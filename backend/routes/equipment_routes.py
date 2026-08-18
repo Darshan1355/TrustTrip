@@ -6,6 +6,7 @@ from services.equipment_service import (
     fetch_all_equipment,
     fetch_equipment_by_id
 )
+from services.notification_service import send_notification_to_user
 
 equipment_bp = Blueprint("equipment", __name__)
 
@@ -38,10 +39,28 @@ def place_order():
         }), 400
 
     try:
-        create_order(data)
+        # Create order and get ID
+        order_id = create_order(data)
+        
+        # Get user_id from request
+        user_id = data.get("user_id")
+        
+        # Trigger notification to user
+        if user_id:
+            notification_data = {
+                "type": "equipment_order",
+                "order_id": order_id,
+                "screen": "Equipment"
+            }
+            send_notification_to_user(
+                user_id=user_id,
+                notification_type="equipment_order",
+                notification_data=notification_data
+            )
 
         return jsonify({
-            "message": "Order placed successfully"
+            "message": "Order placed successfully",
+            "order_id": order_id
         })
 
     except Exception as e:

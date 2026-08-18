@@ -22,7 +22,15 @@ def fetch_prices():
 
 
 def create_order(data):
-
+    """
+    Create equipment order and return the order ID.
+    
+    Args:
+        data: Dictionary with user_id, equipment_id, quantity, total_price, latitude, longitude
+        
+    Returns:
+        int: The equipment order ID
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -47,10 +55,13 @@ def create_order(data):
         data.get("longitude")
     ))
 
+    order_id = cursor.lastrowid
     conn.commit()
 
     cursor.close()
     conn.close()
+    
+    return order_id
 
 
 def fetch_user_orders(user_id):

@@ -9,9 +9,8 @@ const getEnvValue = (key, fallback) => {
   return value ?? fallback;
 };
 
-const defaultApiBaseUrl = Platform.OS === "android"
-  ? "http://10.0.2.2:5000"
-  : "http://localhost:5000";
+// Use the active Wi‑Fi LAN IP by default; override via expo `extra` or environment variables.
+const defaultApiBaseUrl = "http://10.170.240.190:5000";
 
 export const API_BASE_URL = getEnvValue("API_BASE_URL", defaultApiBaseUrl);
 export const APP_NAME = getEnvValue("APP_NAME", "TrustTrip");
