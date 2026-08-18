@@ -150,6 +150,7 @@ export default function EquipmentDetailsScreen({ route, navigation }: any) {
         } catch {
           // Payment failure reporting is best effort; preserve the original error state.
         }
+      }
 
       Alert.alert("Payment not completed", description, [{ text: "Try again" }]);
     } finally {

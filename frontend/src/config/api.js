@@ -31,7 +31,7 @@ api.interceptors.response.use(
   (error) => {
     try {
       if (error.response) {
-        console.log("API ERROR:", error.response.status, error.response.data);
+        console.log("[v0] API request failed:", error.response.status);
         AxiosErrorLogger.logError({
           type: 'response',
           status: error.response.status,

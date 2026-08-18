@@ -86,6 +86,8 @@ def ensure_tables():
         paid_at DATETIME,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        last_webhook_event VARCHAR(80),
+        webhook_received_at DATETIME,
         INDEX idx_payment_user (user_id, created_at),
         INDEX idx_payment_status (status, created_at)
     ) ENGINE=InnoDB;

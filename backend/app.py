@@ -1,3 +1,6 @@
+import logging
+import os
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from config import Config
@@ -14,8 +17,11 @@ from routes.device_routes import device_bp
 from routes.payment_routes import payment_bp
 
 # Initialize Flask app
+logging.basicConfig(level=getattr(logging, Config.LOG_LEVEL, logging.INFO), format="%(asctime)s %(levelname)s %(name)s %(message)s")
+if Config.ENVIRONMENT in {"production", "staging"}:
+    Config.validate()
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=os.environ.get("CORS_ORIGINS", "").split(",") if os.environ.get("CORS_ORIGINS") else "*")
 
 # Register all Blueprints
 app.register_blueprint(auth_bp)

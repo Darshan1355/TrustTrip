@@ -1,4 +1,6 @@
+import hashlib
 import hmac
+import logging
 import secrets
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
@@ -6,6 +8,8 @@ import razorpay
 
 from config import Config
 from database import get_db_connection
+
+logger = logging.getLogger(__name__)
 
 
 class PaymentError(Exception):
@@ -132,6 +136,35 @@ def verify_payment(payload):
     except Exception:
         conn.rollback()
         raise PaymentError("Unable to verify payment", 502)
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def verify_webhook_signature(raw_body, signature):
+    if not Config.RAZORPAY_WEBHOOK_SECRET or not signature:
+        raise PaymentError("Webhook is not configured", 503)
+    expected = hmac.new(Config.RAZORPAY_WEBHOOK_SECRET.encode(), raw_body, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, signature):
+        raise PaymentError("Invalid webhook signature", 400)
+
+
+def process_webhook(payload):
+    event = payload.get("event")
+    payment_entity = payload.get("payload", {}).get("payment", {}).get("entity", {})
+    order_id = payment_entity.get("order_id")
+    payment_id = payment_entity.get("id")
+    if event not in {"payment.captured", "payment.failed"} or not order_id:
+        return {"message": "Webhook acknowledged"}
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        if event == "payment.captured":
+            cursor.execute("UPDATE razorpay_payments SET razorpay_payment_id=%s, status='PAID', paid_at=NOW(), updated_at=NOW() WHERE razorpay_order_id=%s AND status='PENDING'", (payment_id, order_id))
+        else:
+            cursor.execute("UPDATE razorpay_payments SET status='FAILED', failure_reason=%s, updated_at=NOW() WHERE razorpay_order_id=%s AND status='PENDING'", (str(payment_entity.get("error_description", "Payment failed"))[:500], order_id))
+        conn.commit()
+        return {"message": "Webhook processed"}
     finally:
         cursor.close()
         conn.close()

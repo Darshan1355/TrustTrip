@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RazorpayCheckout from "react-native-razorpay";
 import api from "../config/api";
+import { RAZORPAY_KEY_ID } from "../config/constants";
 
 export type PaymentOrder = {
   key_id: string;
@@ -37,8 +38,10 @@ export async function createPaymentOrder(equipmentId: number, quantity: number, 
 }
 
 export async function openRazorpayCheckout(order: PaymentOrder, userName?: string) {
+  const key = RAZORPAY_KEY_ID || order.key_id;
+  if (!key) throw new Error("Payment is not configured");
   return RazorpayCheckout.open({
-    key: order.key_id,
+    key,
     amount: String(order.amount),
     currency: order.currency,
     name: "TrustTrip",
