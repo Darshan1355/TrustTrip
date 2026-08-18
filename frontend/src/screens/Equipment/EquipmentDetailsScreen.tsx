@@ -13,8 +13,13 @@ import {
 
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../../config/api";
+import {
+  createPaymentOrder,
+  markPaymentFailed,
+  openRazorpayCheckout,
+  verifyPayment,
+} from "../../services/paymentService";
 
 
 const equipmentImages = [
@@ -115,51 +120,40 @@ export default function EquipmentDetailsScreen({ route, navigation }: any) {
     return () => clearInterval(interval);
   }, [deliveryLocation, userLocation]);
 
-  // 🧾 PLACE ORDER (CONNECTED TO BACKEND)
-
-
-const handleOrder = async () => {
-  if (!userLocation) {
-    Alert.alert("Please share live location first.");
-    return;
-  }
-
-  const user = await AsyncStorage.getItem("user");
-  if (!user) {
-    Alert.alert("User not logged in");
-    return;
-  }
-
-  const parsedUser = JSON.parse(user);
-  if (!parsedUser.id) {
-    Alert.alert("User ID missing — login issue");
-    return;
-  }
-
-  setPlacingOrder(true);
-  try {
-    const response = await api.post("/place-order", {
-      user_id: parsedUser.id,
-      equipment_id: Number(item.id),
-      quantity: quantity,
-      total_price: totalPrice,
-      latitude: userLocation.latitude,
-      longitude: userLocation.longitude,
-    });
-
-    const data = response.data;
-    if (response.status >= 200 && response.status < 300) {
-      Alert.alert("Success", data.message || "Order placed successfully");
-    } else {
-      Alert.alert("Error", data.error || "Order failed");
+  // Create and verify the payment through the backend. The backend is authoritative for amount and status.
+  const handleOrder = async () => {
+    if (!userLocation) {
+      Alert.alert("Location required", "Please share live location before paying.");
+      return;
     }
-  } catch (err) {
-    console.log("placeOrder error:", err);
-    Alert.alert("Error", "Failed to place order. Please try again.");
-  } finally {
-    setPlacingOrder(false);
-  }
-};
+
+    setPlacingOrder(true);
+    let paymentOrder: Awaited<ReturnType<typeof createPaymentOrder>> | null = null;
+    try {
+      paymentOrder = await createPaymentOrder(Number(item.id), quantity, userLocation);
+      const checkoutResponse = await openRazorpayCheckout(paymentOrder, item.name);
+      const verified = await verifyPayment(paymentOrder.order_id, checkoutResponse);
+
+      navigation.replace("PaymentSuccess", {
+        paymentId: verified.payment_id,
+        orderId: verified.order_id,
+        amount: paymentOrder.amount,
+        equipmentName: paymentOrder.equipment_name || item.name,
+      });
+    } catch (error: any) {
+      const description = error?.description || error?.message || "Payment could not be completed.";
+      if (paymentOrder?.order_id) {
+        try {
+          await markPaymentFailed(paymentOrder.order_id, description);
+        } catch (failureError) {
+          console.log("[v0] payment failure update error:", failureError);
+        }
+      }
+      Alert.alert("Payment not completed", description, [{ text: "Try again" }]);
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -317,7 +311,7 @@ const handleOrder = async () => {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.orderText}>
-              {`\uD83D\uDED2  Place Order - \u20B9${totalPrice}`}
+              {`Pay Now - \u20B9${totalPrice}`}
             </Text>
           )}
         </TouchableOpacity>

@@ -32,6 +32,7 @@ import SOSDetailScreen from "../screens/SOS/SOSDetailScreen";
 import ChatBotScreen from "../screens/ChatBotScreen";
 import MyComplaintsScreen from "../screens/complaints/MyComplaintsScreen";
 import MyOrdersScreen from "../screens/Equipment/MyOrdersScreen";
+import PaymentSuccessScreen from "../screens/Equipment/PaymentSuccessScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import DebugAxiosErrorsScreen from "../screens/DebugAxiosErrorsScreen";
 
@@ -45,6 +46,7 @@ type RootStackParamList = {
   MyComplaints: undefined;
   Dashboard: undefined;
   MyOrders: undefined;
+  PaymentSuccess: { paymentId: string; orderId: string; amount: number; equipmentName?: string };
   Language: undefined;
   WomenSafety: undefined;
   WomenSafetyDetail: undefined;
@@ -182,6 +184,7 @@ export default function AppNavigator() {
             <Stack.Screen name="MyComplaints" component={MyComplaintsScreen} />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+            <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="WomenSafety" component={WomenSafetyScreen} />
             <Stack.Screen name="WomenSafetyDetail" component={WomenSafetyDetailScreen} />
