@@ -129,9 +129,11 @@ export default function EquipmentDetailsScreen({ route, navigation }: any) {
 
     setPlacingOrder(true);
     let paymentOrder: Awaited<ReturnType<typeof createPaymentOrder>> | null = null;
+    let checkoutCompleted = false;
     try {
       paymentOrder = await createPaymentOrder(Number(item.id), quantity, userLocation);
       const checkoutResponse = await openRazorpayCheckout(paymentOrder, item.name);
+      checkoutCompleted = true;
       const verified = await verifyPayment(paymentOrder.order_id, checkoutResponse);
 
       navigation.replace("PaymentSuccess", {
@@ -142,13 +144,13 @@ export default function EquipmentDetailsScreen({ route, navigation }: any) {
       });
     } catch (error: any) {
       const description = error?.description || error?.message || "Payment could not be completed.";
-      if (paymentOrder?.order_id) {
+      if (paymentOrder?.order_id && !checkoutCompleted) {
         try {
           await markPaymentFailed(paymentOrder.order_id, description);
-        } catch (failureError) {
-          console.log("[v0] payment failure update error:", failureError);
+        } catch {
+          // Payment failure reporting is best effort; preserve the original error state.
         }
-      }
+
       Alert.alert("Payment not completed", description, [{ text: "Try again" }]);
     } finally {
       setPlacingOrder(false);

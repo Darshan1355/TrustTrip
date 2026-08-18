@@ -48,7 +48,7 @@ def create_payment_order(payload):
     user_id = payload.get("user_id")
     equipment_id = payload.get("equipment_id")
     quantity = payload.get("quantity", 1)
-    if not isinstance(user_id, int) or not isinstance(equipment_id, int):
+    if not isinstance(user_id, int) or isinstance(user_id, bool) or not isinstance(equipment_id, int) or isinstance(equipment_id, bool):
         raise PaymentError("user_id and equipment_id must be integers")
     if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity < 1 or quantity > 20:
         raise PaymentError("quantity must be an integer between 1 and 20")
@@ -82,6 +82,8 @@ def verify_payment(payload):
     required = ("user_id", "razorpay_order_id", "razorpay_payment_id", "razorpay_signature")
     if any(not payload.get(key) for key in required):
         raise PaymentError("Payment verification fields are required")
+    if not isinstance(payload["user_id"], int) or isinstance(payload["user_id"], bool):
+        raise PaymentError("user_id must be an integer")
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -93,18 +95,43 @@ def verify_payment(payload):
             if record.get("razorpay_payment_id") == payload["razorpay_payment_id"]:
                 return {"message": "Payment already verified", "payment_id": record["razorpay_payment_id"]}
             raise PaymentError("Payment order has already been completed", 409)
-        expected = hmac.new(Config.RAZORPAY_KEY_SECRET.encode(), f"{payload['razorpay_order_id']}|{payload['razorpay_payment_id']}".encode(), "sha256").hexdigest()
-        if not secrets.compare_digest(expected, payload["razorpay_signature"]):
+        if record["status"] != "PENDING":
+            raise PaymentError("Payment order is not payable", 409)
+
+        expected = hmac.new(
+            Config.RAZORPAY_KEY_SECRET.encode(),
+            f"{payload['razorpay_order_id']}|{payload['razorpay_payment_id']}".encode(),
+            "sha256",
+        ).hexdigest()
+        if not secrets.compare_digest(expected, str(payload["razorpay_signature"])):
             raise PaymentError("Invalid payment signature", 400)
+
+        # Signature validation proves origin, but not that the captured payment
+        # matches our amount/order. Reconcile with Razorpay before marking PAID.
+        payment = _client().payment.fetch(payload["razorpay_payment_id"])
+        if payment.get("order_id") != payload["razorpay_order_id"]:
+            raise PaymentError("Payment does not match the order", 400)
+        if int(payment.get("amount", -1)) != int(record["amount_paise"]):
+            raise PaymentError("Payment amount does not match the order", 400)
+        if payment.get("currency", "INR") != record["currency"]:
+            raise PaymentError("Payment currency does not match the order", 400)
+        if payment.get("status") != "captured":
+            raise PaymentError("Payment has not been captured", 409)
+
         cursor.execute("""
             UPDATE razorpay_payments SET razorpay_payment_id=%s, razorpay_signature=%s, status='PAID', paid_at=NOW(), updated_at=NOW()
             WHERE id=%s AND status='PENDING'
         """, (payload["razorpay_payment_id"], payload["razorpay_signature"], record["id"]))
+        if cursor.rowcount != 1:
+            raise PaymentError("Payment was already processed", 409)
         conn.commit()
         return {"message": "Payment verified successfully", "payment_id": payload["razorpay_payment_id"]}
     except PaymentError:
         conn.rollback()
         raise
+    except Exception:
+        conn.rollback()
+        raise PaymentError("Unable to verify payment", 502)
     finally:
         cursor.close()
         conn.close()
