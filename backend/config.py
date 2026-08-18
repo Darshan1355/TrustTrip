@@ -19,3 +19,7 @@ class Config:
     
     # Expo Push Notifications configuration
     EXPO_ACCESS_TOKEN = os.environ.get("EXPO_ACCESS_TOKEN", "")
+
+    # Razorpay configuration (never expose the secret in API responses)
+    RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "")
+    RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "")

@@ -70,6 +70,28 @@ def ensure_tables():
     """)
 
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS razorpay_payments (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        razorpay_order_id VARCHAR(100) NOT NULL UNIQUE,
+        razorpay_payment_id VARCHAR(100) UNIQUE,
+        razorpay_signature VARCHAR(128),
+        user_id INT NOT NULL,
+        equipment_id INT NOT NULL,
+        quantity INT NOT NULL,
+        amount_paise BIGINT NOT NULL,
+        currency CHAR(3) NOT NULL DEFAULT 'INR',
+        status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+        receipt VARCHAR(100) NOT NULL UNIQUE,
+        failure_reason VARCHAR(500),
+        paid_at DATETIME,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_payment_user (user_id, created_at),
+        INDEX idx_payment_status (status, created_at)
+    ) ENGINE=InnoDB;
+    """)
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS notifications (
         notification_id INT PRIMARY KEY AUTO_INCREMENT,
         user_id INT NOT NULL,
